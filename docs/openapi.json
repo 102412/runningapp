@@ -22,6 +22,486 @@
           "PRIVATE"
         ]
       },
+      "Activity": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "$ref": "#/components/schemas/Id"
+          },
+          "user": {
+            "$ref": "#/components/schemas/UserSummary"
+          },
+          "sport": {
+            "$ref": "#/components/schemas/SportKey"
+          },
+          "subtype": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "isRace": {
+            "type": "boolean"
+          },
+          "title": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "startedAt": {
+            "$ref": "#/components/schemas/IsoDateTime"
+          },
+          "timezone": {
+            "type": "string",
+            "description": "IANA zone the activity took place in."
+          },
+          "elapsedTimeS": {
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991
+          },
+          "movingTimeS": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": -9007199254740991,
+                "maximum": 9007199254740991
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "distanceM": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "elevationGainM": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "elevationLossM": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "caloriesKcal": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": -9007199254740991,
+                "maximum": 9007199254740991
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "speed": {
+            "$ref": "#/components/schemas/DerivedSpeed"
+          },
+          "metrics": {
+            "$ref": "#/components/schemas/ActivityMetrics"
+          },
+          "splits": {
+            "anyOf": [
+              {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/ActivitySplit"
+                }
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Populated by the detail views (GET /activities/{id}, create, import); null in lists and feeds."
+          },
+          "hasRoute": {
+            "type": "boolean",
+            "description": "A route exists AND some of it may be shown to this viewer."
+          },
+          "routePreview": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RouteView"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Simplified (<=120 points), privacy-filtered route for cards. Fetch /route for detail."
+          },
+          "records": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ActivityRecord"
+            }
+          },
+          "visibility": {
+            "$ref": "#/components/schemas/ContentVisibility"
+          },
+          "source": {
+            "$ref": "#/components/schemas/ActivitySource"
+          },
+          "locationLabel": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "ownerPrivacy": {
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "routePrivacy": {
+                    "$ref": "#/components/schemas/RoutePrivacy"
+                  }
+                },
+                "required": [
+                  "routePrivacy"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Present only when the viewer owns the activity."
+          },
+          "createdAt": {
+            "$ref": "#/components/schemas/IsoDateTime"
+          }
+        },
+        "required": [
+          "id",
+          "user",
+          "sport",
+          "subtype",
+          "isRace",
+          "title",
+          "description",
+          "startedAt",
+          "timezone",
+          "elapsedTimeS",
+          "movingTimeS",
+          "distanceM",
+          "elevationGainM",
+          "elevationLossM",
+          "caloriesKcal",
+          "speed",
+          "metrics",
+          "splits",
+          "hasRoute",
+          "routePreview",
+          "records",
+          "visibility",
+          "source",
+          "locationLabel",
+          "ownerPrivacy",
+          "createdAt"
+        ],
+        "additionalProperties": false
+      },
+      "ActivityMetrics": {
+        "type": "object",
+        "properties": {
+          "avgSpeedMps": {
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 120
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "maxSpeedMps": {
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 120
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "heartRate": {
+            "type": "object",
+            "properties": {
+              "avgBpm": {
+                "anyOf": [
+                  {
+                    "type": "integer",
+                    "minimum": 20,
+                    "maximum": 260
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "maxBpm": {
+                "anyOf": [
+                  {
+                    "type": "integer",
+                    "minimum": 20,
+                    "maximum": 260
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            },
+            "required": [
+              "avgBpm",
+              "maxBpm"
+            ],
+            "additionalProperties": false
+          },
+          "cadence": {
+            "type": "object",
+            "properties": {
+              "avg": {
+                "anyOf": [
+                  {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 300
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "max": {
+                "anyOf": [
+                  {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 300
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            },
+            "required": [
+              "avg",
+              "max"
+            ],
+            "additionalProperties": false
+          },
+          "power": {
+            "type": "object",
+            "properties": {
+              "avgW": {
+                "anyOf": [
+                  {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 3000
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "maxW": {
+                "anyOf": [
+                  {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 5000
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "normalizedW": {
+                "anyOf": [
+                  {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 3000
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            },
+            "required": [
+              "avgW",
+              "maxW",
+              "normalizedW"
+            ],
+            "additionalProperties": false
+          },
+          "temperatureC": {
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": -60,
+                "maximum": 70
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "sportSpecific": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/SportSpecific"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "avgSpeedMps",
+          "maxSpeedMps",
+          "heartRate",
+          "cadence",
+          "power",
+          "temperatureC",
+          "sportSpecific"
+        ],
+        "additionalProperties": false
+      },
+      "ActivityPage": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Activity"
+            }
+          },
+          "nextCursor": {
+            "description": "Pass as `cursor` to fetch the next page; null when there are no more items.",
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "items",
+          "nextCursor"
+        ],
+        "additionalProperties": false
+      },
+      "ActivityRecord": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "$ref": "#/components/schemas/RecordType"
+          },
+          "value": {
+            "type": "number",
+            "description": "Seconds for FASTEST_*/LONGEST_DURATION, metres for distances/climbs."
+          },
+          "previousValue": {
+            "type": [
+              "number",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "type",
+          "value",
+          "previousValue"
+        ],
+        "additionalProperties": false
+      },
+      "ActivitySource": {
+        "type": "string",
+        "enum": [
+          "MANUAL",
+          "FILE_IMPORT",
+          "STRAVA",
+          "GARMIN",
+          "APPLE_HEALTH",
+          "HEALTH_CONNECT"
+        ]
+      },
+      "ActivitySplit": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "$ref": "#/components/schemas/SplitType"
+          },
+          "index": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9007199254740991
+          },
+          "distanceM": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "elapsedTimeS": {
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991
+          },
+          "elevationDiffM": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "avgHeartRateBpm": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": -9007199254740991,
+                "maximum": 9007199254740991
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "avgSpeedMps": {
+            "type": [
+              "number",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "type",
+          "index",
+          "distanceM",
+          "elapsedTimeS",
+          "elevationDiffM",
+          "avgHeartRateBpm",
+          "avgSpeedMps"
+        ],
+        "additionalProperties": false
+      },
       "AuthResponse": {
         "type": "object",
         "properties": {
@@ -206,6 +686,60 @@
           "scheduledFor"
         ],
         "additionalProperties": false
+      },
+      "DerivedSpeed": {
+        "type": "object",
+        "properties": {
+          "avgSpeedKph": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "avgSpeedMph": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "paceSecPerKm": {
+            "description": "Seconds per kilometre (running, walking, ...).",
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "paceSecPerMile": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "paceSecPer100m": {
+            "description": "Swimming.",
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "paceSecPer500m": {
+            "description": "Rowing.",
+            "type": [
+              "number",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "avgSpeedKph",
+          "avgSpeedMph",
+          "paceSecPerKm",
+          "paceSecPerMile",
+          "paceSecPer100m",
+          "paceSecPer500m"
+        ],
+        "additionalProperties": false,
+        "description": "Computed from average speed (distance / moving time). All null when speed is unknown."
       },
       "DevMail": {
         "type": "object",
@@ -478,6 +1012,81 @@
         "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$",
         "description": "UUID (v7, time-ordered)."
       },
+      "Integration": {
+        "type": "object",
+        "properties": {
+          "provider": {
+            "$ref": "#/components/schemas/IntegrationProvider"
+          },
+          "available": {
+            "type": "boolean",
+            "description": "False when the server has no credentials for this provider configured."
+          },
+          "connected": {
+            "type": "boolean"
+          },
+          "status": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/IntegrationStatus"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "lastSyncedAt": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/IsoDateTime"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "provider",
+          "available",
+          "connected",
+          "status",
+          "lastSyncedAt"
+        ],
+        "additionalProperties": false
+      },
+      "IntegrationList": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Integration"
+            }
+          }
+        },
+        "required": [
+          "items"
+        ],
+        "additionalProperties": false
+      },
+      "IntegrationProvider": {
+        "type": "string",
+        "enum": [
+          "STRAVA",
+          "GARMIN",
+          "APPLE_HEALTH",
+          "HEALTH_CONNECT"
+        ]
+      },
+      "IntegrationStatus": {
+        "type": "string",
+        "enum": [
+          "CONNECTED",
+          "NEEDS_REAUTH",
+          "REVOKED"
+        ]
+      },
       "IsoDate": {
         "type": "string",
         "format": "date",
@@ -557,6 +1166,60 @@
           "profile",
           "settings",
           "deletion"
+        ],
+        "additionalProperties": false
+      },
+      "PrivacyZone": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "$ref": "#/components/schemas/Id"
+          },
+          "label": {
+            "type": "string"
+          },
+          "lat": {
+            "type": "number",
+            "minimum": -90,
+            "maximum": 90
+          },
+          "lon": {
+            "type": "number",
+            "minimum": -180,
+            "maximum": 180
+          },
+          "radiusM": {
+            "type": "integer",
+            "minimum": 50,
+            "maximum": 5000
+          },
+          "createdAt": {
+            "$ref": "#/components/schemas/IsoDateTime"
+          }
+        },
+        "required": [
+          "id",
+          "label",
+          "lat",
+          "lon",
+          "radiusM",
+          "createdAt"
+        ],
+        "additionalProperties": false,
+        "description": "Visible to the owner only. Route points inside a zone are never shown to anyone else."
+      },
+      "PrivacyZoneList": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PrivacyZone"
+            }
+          }
+        },
+        "required": [
+          "items"
         ],
         "additionalProperties": false
       },
@@ -683,6 +1346,18 @@
         ],
         "additionalProperties": false
       },
+      "RecordType": {
+        "type": "string",
+        "enum": [
+          "LONGEST_DISTANCE",
+          "LONGEST_DURATION",
+          "FASTEST_5K",
+          "FASTEST_10K",
+          "FASTEST_HALF_MARATHON",
+          "FASTEST_MARATHON",
+          "BIGGEST_CLIMB"
+        ]
+      },
       "RefreshResponse": {
         "type": "object",
         "properties": {
@@ -711,6 +1386,58 @@
           "APPROXIMATE",
           "HIDDEN"
         ]
+      },
+      "RouteView": {
+        "type": "object",
+        "properties": {
+          "segments": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Encoded polylines (Google format, precision 5). Usually one; several when parts of the route were hidden (privacy zones / trimmed ends). Draw each separately; never join them."
+          },
+          "precision": {
+            "type": "number",
+            "const": 5
+          },
+          "bbox": {
+            "type": "object",
+            "properties": {
+              "minLat": {
+                "type": "number"
+              },
+              "minLon": {
+                "type": "number"
+              },
+              "maxLat": {
+                "type": "number"
+              },
+              "maxLon": {
+                "type": "number"
+              }
+            },
+            "required": [
+              "minLat",
+              "minLon",
+              "maxLat",
+              "maxLon"
+            ],
+            "additionalProperties": false,
+            "description": "Bounding box of the SEGMENTS SHOWN (not of the raw track)."
+          },
+          "isPrivacyFiltered": {
+            "type": "boolean",
+            "description": "True when some of the original route is withheld from this viewer."
+          }
+        },
+        "required": [
+          "segments",
+          "precision",
+          "bbox",
+          "isPrivacyFiltered"
+        ],
+        "additionalProperties": false
       },
       "SessionList": {
         "type": "object",
@@ -861,6 +1588,15 @@
           "PACE_PER_100M",
           "PACE_PER_500M",
           "NONE"
+        ]
+      },
+      "SplitType": {
+        "type": "string",
+        "enum": [
+          "KM",
+          "MILE",
+          "LAP",
+          "INTERVAL"
         ]
       },
       "Sport": {
@@ -1018,6 +1754,86 @@
           "PARTICIPANT",
           "FOLLOWER"
         ]
+      },
+      "SportSpecific": {
+        "type": "object",
+        "properties": {
+          "swim": {
+            "type": "object",
+            "properties": {
+              "poolLengthM": {
+                "type": "number",
+                "minimum": 10,
+                "maximum": 100
+              },
+              "strokeCount": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 1000000
+              },
+              "openWater": {
+                "type": "boolean"
+              }
+            },
+            "additionalProperties": false
+          },
+          "strength": {
+            "type": "object",
+            "properties": {
+              "totalVolumeKg": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 10000000
+              },
+              "exercises": {
+                "maxItems": 40,
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "name": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 60
+                    },
+                    "sets": {
+                      "maxItems": 30,
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "reps": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 1000
+                          },
+                          "weightKg": {
+                            "type": "number",
+                            "minimum": 0,
+                            "maximum": 1000
+                          },
+                          "durationS": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 36000
+                          }
+                        },
+                        "additionalProperties": false
+                      }
+                    }
+                  },
+                  "required": [
+                    "name",
+                    "sets"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "additionalProperties": false
       },
       "TokenPair": {
         "type": "object",
@@ -3395,6 +4211,1187 @@
                 }
               }
             }
+          },
+          "401": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/activities": {
+      "post": {
+        "operationId": "createActivity",
+        "summary": "Log an activity (the LOG step)",
+        "tags": [
+          "Activities"
+        ],
+        "description": "Metrics are all optional; supplying one the sport does not support is rejected with `METRIC_NOT_SUPPORTED_FOR_SPORT`. Units are SI (metres, seconds, m/s). When `createPost` is true (default: your `autoCreateActivityPost` setting) a feed post is created for the activity.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "sport": {
+                    "$ref": "#/components/schemas/SportKey"
+                  },
+                  "subtype": {
+                    "description": "Lower-case slug such as \"trail\", \"indoor\", \"open_water\", \"long_run\".",
+                    "type": "string",
+                    "pattern": "^[a-z][a-z0-9_]{0,39}$"
+                  },
+                  "isRace": {
+                    "type": "boolean"
+                  },
+                  "title": {
+                    "description": "Defaults to e.g. \"Morning Run\" from the local start time.",
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 100
+                  },
+                  "description": {
+                    "type": "string",
+                    "maxLength": 2000
+                  },
+                  "startedAt": {
+                    "$ref": "#/components/schemas/IsoDateTime"
+                  },
+                  "timezone": {
+                    "description": "IANA zone, e.g. \"America/Los_Angeles\". Defaults to UTC.",
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 64
+                  },
+                  "elapsedTimeS": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 604800
+                  },
+                  "movingTimeS": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 604800
+                  },
+                  "distanceM": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 2000000
+                  },
+                  "elevationGainM": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 20000
+                  },
+                  "elevationLossM": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 20000
+                  },
+                  "caloriesKcal": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 100000
+                  },
+                  "metrics": {
+                    "type": "object",
+                    "properties": {
+                      "avgSpeedMps": {
+                        "type": "number",
+                        "minimum": 0,
+                        "maximum": 120
+                      },
+                      "maxSpeedMps": {
+                        "type": "number",
+                        "minimum": 0,
+                        "maximum": 120
+                      },
+                      "heartRate": {
+                        "type": "object",
+                        "properties": {
+                          "avgBpm": {
+                            "type": "integer",
+                            "minimum": 20,
+                            "maximum": 260
+                          },
+                          "maxBpm": {
+                            "type": "integer",
+                            "minimum": 20,
+                            "maximum": 260
+                          }
+                        },
+                        "additionalProperties": false
+                      },
+                      "cadence": {
+                        "type": "object",
+                        "properties": {
+                          "avg": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 300
+                          },
+                          "max": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 300
+                          }
+                        },
+                        "additionalProperties": false
+                      },
+                      "power": {
+                        "type": "object",
+                        "properties": {
+                          "avgW": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 3000
+                          },
+                          "maxW": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 5000
+                          },
+                          "normalizedW": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 3000
+                          }
+                        },
+                        "additionalProperties": false
+                      },
+                      "temperatureC": {
+                        "type": "number",
+                        "minimum": -60,
+                        "maximum": 70
+                      },
+                      "sportSpecific": {
+                        "$ref": "#/components/schemas/SportSpecific"
+                      }
+                    },
+                    "additionalProperties": false
+                  },
+                  "splits": {
+                    "maxItems": 1000,
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "type": {
+                          "$ref": "#/components/schemas/SplitType"
+                        },
+                        "distanceM": {
+                          "type": "number",
+                          "minimum": 0,
+                          "maximum": 2000000
+                        },
+                        "elapsedTimeS": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 604800
+                        },
+                        "elevationDiffM": {
+                          "type": "number",
+                          "minimum": -20000,
+                          "maximum": 20000
+                        },
+                        "avgHeartRateBpm": {
+                          "type": "integer",
+                          "minimum": 20,
+                          "maximum": 260
+                        },
+                        "avgSpeedMps": {
+                          "type": "number",
+                          "minimum": 0,
+                          "maximum": 120
+                        }
+                      },
+                      "required": [
+                        "type",
+                        "elapsedTimeS"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "route": {
+                    "type": "object",
+                    "properties": {
+                      "polyline": {
+                        "description": "Google encoded polyline, precision 5.",
+                        "type": "string",
+                        "minLength": 2,
+                        "maxLength": 600000
+                      },
+                      "points": {
+                        "minItems": 2,
+                        "maxItems": 50000,
+                        "type": "array",
+                        "items": {
+                          "type": "array",
+                          "prefixItems": [
+                            {
+                              "type": "number",
+                              "minimum": -90,
+                              "maximum": 90
+                            },
+                            {
+                              "type": "number",
+                              "minimum": -180,
+                              "maximum": 180
+                            }
+                          ],
+                          "items": false,
+                          "minItems": 2,
+                          "maxItems": 2,
+                          "description": "[latitude, longitude] in degrees"
+                        }
+                      }
+                    }
+                  },
+                  "visibility": {
+                    "$ref": "#/components/schemas/ContentVisibility"
+                  },
+                  "routePrivacy": {
+                    "$ref": "#/components/schemas/RoutePrivacy"
+                  },
+                  "locationLabel": {
+                    "type": "string",
+                    "maxLength": 80
+                  },
+                  "createPost": {
+                    "description": "Create a feed post for this activity. Defaults to your `autoCreateActivityPost` setting.",
+                    "type": "boolean"
+                  }
+                },
+                "required": [
+                  "sport",
+                  "startedAt",
+                  "elapsedTimeS"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Activity"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/activities/import/gpx": {
+      "post": {
+        "operationId": "importGpxActivity",
+        "summary": "Import a GPX file as an activity",
+        "tags": [
+          "Activities"
+        ],
+        "description": "Send the raw GPX XML as the request body with `Content-Type: application/gpx+xml` (max 10 MB). Distance, moving time, elevation, kilometre splits and heart rate are derived from the track; every point must carry a <time>. Importing the same file twice is idempotent and returns the existing activity (200).",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/gpx+xml": {
+              "schema": {
+                "type": "string",
+                "minLength": 20
+              }
+            },
+            "application/xml": {
+              "schema": {
+                "type": "string",
+                "minLength": 20
+              }
+            },
+            "text/xml": {
+              "schema": {
+                "type": "string",
+                "minLength": 20
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "schema": {
+              "$ref": "#/components/schemas/SportKey"
+            },
+            "in": "query",
+            "name": "sport",
+            "required": false
+          },
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 100
+            },
+            "in": "query",
+            "name": "title",
+            "required": false
+          },
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 64
+            },
+            "in": "query",
+            "name": "timezone",
+            "required": false
+          },
+          {
+            "schema": {
+              "$ref": "#/components/schemas/ContentVisibility"
+            },
+            "in": "query",
+            "name": "visibility",
+            "required": false
+          },
+          {
+            "schema": {
+              "$ref": "#/components/schemas/RoutePrivacy"
+            },
+            "in": "query",
+            "name": "routePrivacy",
+            "required": false
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "true",
+                "false"
+              ]
+            },
+            "in": "query",
+            "name": "isRace",
+            "required": false
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "true",
+                "false"
+              ]
+            },
+            "in": "query",
+            "name": "createPost",
+            "required": false
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Activity"
+                }
+              }
+            }
+          },
+          "201": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Activity"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/activities/{id}": {
+      "get": {
+        "operationId": "getActivity",
+        "summary": "One activity, with splits",
+        "tags": [
+          "Activities"
+        ],
+        "description": "Not-visible and non-existent activities are indistinguishable (`ACTIVITY_NOT_FOUND`). Routes are privacy-filtered for everyone but the owner.",
+        "parameters": [
+          {
+            "schema": {
+              "$ref": "#/components/schemas/Id"
+            },
+            "in": "path",
+            "name": "id",
+            "required": true
+          }
+        ],
+        "security": [
+          {},
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Activity"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "operationId": "updateActivity",
+        "summary": "Edit title, description, visibility, route privacy",
+        "tags": [
+          "Activities"
+        ],
+        "description": "Only the owner. Measurements are immutable once logged.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "title": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 100
+                  },
+                  "description": {
+                    "type": "string",
+                    "maxLength": 2000
+                  },
+                  "subtype": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "pattern": "^[a-z][a-z0-9_]{0,39}$"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "isRace": {
+                    "type": "boolean"
+                  },
+                  "visibility": {
+                    "$ref": "#/components/schemas/ContentVisibility"
+                  },
+                  "routePrivacy": {
+                    "$ref": "#/components/schemas/RoutePrivacy"
+                  },
+                  "locationLabel": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "maxLength": 80
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                },
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "schema": {
+              "$ref": "#/components/schemas/Id"
+            },
+            "in": "path",
+            "name": "id",
+            "required": true
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Activity"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "operationId": "deleteActivity",
+        "summary": "Delete an activity (and its route and auto-generated feed post)",
+        "tags": [
+          "Activities"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "$ref": "#/components/schemas/Id"
+            },
+            "in": "path",
+            "name": "id",
+            "required": true
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No content."
+          },
+          "401": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/activities/{id}/route": {
+      "get": {
+        "operationId": "getActivityRoute",
+        "summary": "The activity route as encoded polyline segments",
+        "tags": [
+          "Activities"
+        ],
+        "description": "Owners get the real route (or, with `view=PUBLIC`, a preview of exactly what others see). Everyone else gets the privacy-transformed route: ends trimmed, privacy zones removed, optionally coarsened. 404 when there is nothing to show.",
+        "parameters": [
+          {
+            "schema": {
+              "default": "OWNER",
+              "type": "string",
+              "enum": [
+                "OWNER",
+                "PUBLIC"
+              ]
+            },
+            "in": "query",
+            "name": "view",
+            "required": false,
+            "description": "Owners may request PUBLIC to preview exactly what other people see. Non-owners always get PUBLIC."
+          },
+          {
+            "schema": {
+              "$ref": "#/components/schemas/Id"
+            },
+            "in": "path",
+            "name": "id",
+            "required": true
+          }
+        ],
+        "security": [
+          {},
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RouteView"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/users/{userId}/activities": {
+      "get": {
+        "operationId": "listUserActivities",
+        "summary": "A user's activities visible to the caller, newest first",
+        "tags": [
+          "Activities"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "default": 20,
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 50
+            },
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "description": "Page size, 1..50."
+          },
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 2048
+            },
+            "in": "query",
+            "name": "cursor",
+            "required": false,
+            "description": "Opaque cursor from the previous page's `nextCursor`. Never construct one yourself."
+          },
+          {
+            "schema": {
+              "$ref": "#/components/schemas/SportKey"
+            },
+            "in": "query",
+            "name": "sport",
+            "required": false
+          },
+          {
+            "schema": {
+              "$ref": "#/components/schemas/Id"
+            },
+            "in": "path",
+            "name": "userId",
+            "required": true
+          }
+        ],
+        "security": [
+          {},
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ActivityPage"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/me/privacy-zones": {
+      "get": {
+        "operationId": "listPrivacyZones",
+        "summary": "Your privacy zones (home, school...)",
+        "tags": [
+          "Me"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PrivacyZoneList"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "operationId": "createPrivacyZone",
+        "summary": "Hide everything near a place from other viewers (max 10 zones)",
+        "tags": [
+          "Me"
+        ],
+        "description": "Applies retroactively to every activity: route points within the radius are never served to anyone but you.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "label": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 40
+                  },
+                  "lat": {
+                    "type": "number",
+                    "minimum": -90,
+                    "maximum": 90
+                  },
+                  "lon": {
+                    "type": "number",
+                    "minimum": -180,
+                    "maximum": 180
+                  },
+                  "radiusM": {
+                    "type": "integer",
+                    "minimum": 50,
+                    "maximum": 5000
+                  }
+                },
+                "required": [
+                  "label",
+                  "lat",
+                  "lon",
+                  "radiusM"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PrivacyZone"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/me/privacy-zones/{id}": {
+      "delete": {
+        "operationId": "deletePrivacyZone",
+        "summary": "Remove a privacy zone",
+        "tags": [
+          "Me"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "$ref": "#/components/schemas/Id"
+            },
+            "in": "path",
+            "name": "id",
+            "required": true
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No content."
+          },
+          "401": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/me/integrations": {
+      "get": {
+        "operationId": "listIntegrations",
+        "summary": "Third-party activity sources and their availability",
+        "tags": [
+          "Me"
+        ],
+        "description": "No provider is configured yet: every entry has `available: false`. See HANDOFF.md.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IntegrationList"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/me/integrations/{provider}": {
+      "delete": {
+        "operationId": "disconnectIntegration",
+        "summary": "Disconnect an integration",
+        "tags": [
+          "Me"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "$ref": "#/components/schemas/IntegrationProvider"
+            },
+            "in": "path",
+            "name": "provider",
+            "required": true
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No content."
           },
           "401": {
             "description": "Default Response",

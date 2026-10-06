@@ -1,9 +1,13 @@
+import { ActivityFlows } from './flows/log-activity';
+import { ActivityService } from './modules/activities/service';
 import { AccessTokenService } from './modules/auth/access-token';
 import { AuthService } from './modules/auth/service';
+import { IntegrationService } from './modules/integrations/service';
 import { ProfileService } from './modules/profiles/service';
 import { DbNotifier, type Notifier } from './modules/notifier';
 import { SocialService } from './modules/social/service';
 import { SportService } from './modules/sports/service';
+import { AgePolicy } from './modules/users/age-policy';
 import { UserDirectory } from './modules/users/directory';
 import { UserRepository } from './modules/users/repository';
 import type { PlatformContext } from './platform/context';
@@ -31,6 +35,10 @@ export interface Services {
   readonly sports: SportService;
   readonly social: SocialService;
   readonly profiles: ProfileService;
+  readonly agePolicy: AgePolicy;
+  readonly activities: ActivityService;
+  readonly integrations: IntegrationService;
+  readonly flows: ActivityFlows;
 }
 
 export interface ServiceOverrides {
@@ -58,6 +66,10 @@ export function createServices(
   const sports = new SportService(db, clock);
   const social = new SocialService(db, directory, notifier);
   const profiles = new ProfileService(config, db, clock, directory, social);
+  const agePolicy = new AgePolicy(config, db, clock);
+  const activities = new ActivityService(db, clock, sports, directory, agePolicy);
+  const integrations = new IntegrationService(db);
+  const flows = new ActivityFlows(db, activities);
 
   return {
     platform,
@@ -70,5 +82,9 @@ export function createServices(
     sports,
     social,
     profiles,
+    agePolicy,
+    activities,
+    integrations,
+    flows,
   };
 }

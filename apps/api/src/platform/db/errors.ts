@@ -5,7 +5,7 @@ interface PgErrorLike {
 }
 
 function asPgError(err: unknown): PgErrorLike {
-  return typeof err === 'object' && err !== null ? (err) : {};
+  return typeof err === 'object' && err !== null ? err : {};
 }
 
 export function isUniqueViolation(err: unknown, constraint?: string): boolean {

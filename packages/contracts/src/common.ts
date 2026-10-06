@@ -67,3 +67,9 @@ export const EventContextSchema = z
   })
   .meta({ id: 'EventContext' });
 export type EventContext = z.infer<typeof EventContextSchema>;
+
+/**
+ * Boolean for query strings. Do NOT use z.coerce.boolean(): it maps the string "false" to true.
+ * Accepts exactly "true" | "false".
+ */
+export const QueryBooleanSchema = z.enum(['true', 'false']).transform((v) => v === 'true');

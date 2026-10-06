@@ -7,3 +7,4 @@ export * from './users';
 export * from './auth';
 export * from './social';
 export * from './sports';
+export * from './activities';

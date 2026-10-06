@@ -135,9 +135,7 @@ export class ProfileService {
     return row;
   }
 
-  async usernameAvailability(
-    username: string,
-  ): Promise<{
+  async usernameAvailability(username: string): Promise<{
     username: string;
     available: boolean;
     reason: 'TAKEN' | 'INVALID' | 'RESERVED' | null;

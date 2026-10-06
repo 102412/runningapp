@@ -7,6 +7,8 @@ import type { ColumnType } from "kysely";
 
 export type AccountVisibility = "PRIVATE" | "PUBLIC";
 
+export type ActivitySource = "APPLE_HEALTH" | "FILE_IMPORT" | "GARMIN" | "HEALTH_CONNECT" | "MANUAL" | "STRAVA";
+
 export type AuthTokenPurpose = "EMAIL_VERIFICATION" | "PASSWORD_RESET";
 
 export type CommentPermission = "EVERYONE" | "FOLLOWERS" | "NOBODY";
@@ -18,6 +20,10 @@ export type DevicePlatform = "ANDROID" | "IOS" | "WEB";
 export type Generated<T> = T extends ColumnType<infer S, infer I, infer U>
   ? ColumnType<S, I | undefined, U>
   : ColumnType<T, T | undefined, T>;
+
+export type IntegrationProvider = "APPLE_HEALTH" | "GARMIN" | "HEALTH_CONNECT" | "STRAVA";
+
+export type IntegrationStatus = "CONNECTED" | "NEEDS_REAUTH" | "REVOKED";
 
 export type JobStatus = "DEAD" | "PENDING" | "RUNNING" | "SUCCEEDED";
 
@@ -39,9 +45,13 @@ export type OauthProvider = "APPLE" | "GOOGLE";
 
 export type PushProvider = "APNS" | "EXPO" | "FCM";
 
+export type RecordType = "BIGGEST_CLIMB" | "FASTEST_10K" | "FASTEST_5K" | "FASTEST_HALF_MARATHON" | "FASTEST_MARATHON" | "LONGEST_DISTANCE" | "LONGEST_DURATION";
+
 export type RoutePrivacy = "APPROXIMATE" | "FULL" | "HIDDEN" | "TRIMMED";
 
 export type SpeedDisplay = "NONE" | "PACE_PER_100M" | "PACE_PER_500M" | "PACE_PER_DISTANCE" | "SPEED";
+
+export type SplitType = "INTERVAL" | "KM" | "LAP" | "MILE";
 
 export type SportCategory = "ENDURANCE" | "GENERAL" | "STRENGTH";
 
@@ -54,6 +64,76 @@ export type UnitSystem = "IMPERIAL" | "METRIC";
 export type UserRole = "ADMIN" | "MODERATOR" | "USER";
 
 export type UserStatus = "ACTIVE" | "PENDING_DELETION" | "SUSPENDED";
+
+export interface Activities {
+  caloriesKcal: number | null;
+  createdAt: Generated<Timestamp>;
+  description: Generated<string>;
+  distanceM: number | null;
+  elapsedTimeS: number;
+  elevationGainM: number | null;
+  elevationLossM: number | null;
+  externalId: string | null;
+  id: Generated<string>;
+  integrationConnectionId: string | null;
+  isRace: Generated<boolean>;
+  locationLabel: string | null;
+  movingTimeS: number | null;
+  routePrivacy: RoutePrivacy;
+  source: Generated<ActivitySource>;
+  sportKey: string;
+  startedAt: Timestamp;
+  subtype: string | null;
+  timezone: Generated<string>;
+  title: string;
+  updatedAt: Generated<Timestamp>;
+  userId: string;
+  visibility: ContentVisibility;
+}
+
+export interface ActivityMetrics {
+  activityId: string;
+  avgCadence: number | null;
+  avgHeartRateBpm: number | null;
+  avgPowerW: number | null;
+  avgSpeedMps: number | null;
+  avgTemperatureC: number | null;
+  extra: Generated<Json>;
+  maxCadence: number | null;
+  maxHeartRateBpm: number | null;
+  maxPowerW: number | null;
+  maxSpeedMps: number | null;
+  normalizedPowerW: number | null;
+}
+
+export interface ActivityRecords {
+  achievedAt: Timestamp;
+  activityId: string;
+  createdAt: Generated<Timestamp>;
+  id: Generated<string>;
+  previousValue: number | null;
+  recordType: RecordType;
+  userId: string;
+  value: number;
+}
+
+export interface ActivityRoutes {
+  activityId: string;
+  createdAt: Generated<Timestamp>;
+  pointCount: number;
+  polyline: string;
+}
+
+export interface ActivitySplits {
+  activityId: string;
+  avgHeartRateBpm: number | null;
+  avgSpeedMps: number | null;
+  distanceM: number | null;
+  elapsedTimeS: number;
+  elevationDiffM: number | null;
+  splitIndex: number;
+  splitType: SplitType;
+}
 
 export interface AuthTokens {
   consumedAt: Timestamp | null;
@@ -120,6 +200,21 @@ export interface IdempotencyKeys {
   userId: string;
 }
 
+export interface IntegrationConnections {
+  accessTokenSealed: string | null;
+  createdAt: Generated<Timestamp>;
+  externalAccountId: string | null;
+  id: Generated<string>;
+  lastSyncedAt: Timestamp | null;
+  provider: IntegrationProvider;
+  refreshTokenSealed: string | null;
+  scopes: Generated<string[]>;
+  status: Generated<IntegrationStatus>;
+  tokenExpiresAt: Timestamp | null;
+  updatedAt: Generated<Timestamp>;
+  userId: string;
+}
+
 export interface Jobs {
   attempts: Generated<number>;
   createdAt: Generated<Timestamp>;
@@ -172,6 +267,16 @@ export interface OauthIdentities {
   id: Generated<string>;
   provider: OauthProvider;
   subject: string;
+  userId: string;
+}
+
+export interface PrivacyZones {
+  centerLat: number;
+  centerLon: number;
+  createdAt: Generated<Timestamp>;
+  id: Generated<string>;
+  label: string;
+  radiusM: number;
   userId: string;
 }
 
@@ -271,6 +376,11 @@ export interface UserSettings {
 }
 
 export interface DB {
+  activities: Activities;
+  activityMetrics: ActivityMetrics;
+  activityRecords: ActivityRecords;
+  activityRoutes: ActivityRoutes;
+  activitySplits: ActivitySplits;
   authTokens: AuthTokens;
   blocks: Blocks;
   devices: Devices;
@@ -278,11 +388,13 @@ export interface DB {
   followRequests: FollowRequests;
   follows: Follows;
   idempotencyKeys: IdempotencyKeys;
+  integrationConnections: IntegrationConnections;
   jobs: Jobs;
   loginThrottles: LoginThrottles;
   notificationPreferences: NotificationPreferences;
   notifications: Notifications;
   oauthIdentities: OauthIdentities;
+  privacyZones: PrivacyZones;
   profiles: Profiles;
   refreshTokens: RefreshTokens;
   sessions: Sessions;

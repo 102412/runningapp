@@ -766,12 +766,10 @@ export class AuthService {
       .insertInto('loginThrottles')
       .values({ email, failureCount: 1, updatedAt: now })
       .onConflict((oc) =>
-        oc
-          .column('email')
-          .doUpdateSet((eb) => ({
-            failureCount: eb('loginThrottles.failureCount', '+', 1),
-            updatedAt: now,
-          })),
+        oc.column('email').doUpdateSet((eb) => ({
+          failureCount: eb('loginThrottles.failureCount', '+', 1),
+          updatedAt: now,
+        })),
       )
       .returning('failureCount')
       .executeTakeFirstOrThrow();
