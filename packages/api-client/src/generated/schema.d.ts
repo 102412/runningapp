@@ -301,6 +301,27 @@ export interface paths {
         patch: operations["updateProfile"];
         trace?: never;
     };
+    "/v1/me/avatar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Use a READY avatar image as your profile picture
+         * @description Upload an image with `purpose: "AVATAR"` via /media/uploads first. Avatars are centre-cropped to a square.
+         */
+        put: operations["setAvatar"];
+        post?: never;
+        /** Remove your profile picture */
+        delete: operations["removeAvatar"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/me/settings": {
         parameters: {
             query?: never;
@@ -735,6 +756,135 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/media/limits": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Upload limits and accepted formats (validate client-side before uploading) */
+        get: operations["getMediaLimits"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/media/uploads": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Start an upload and get a presigned URL (step 1 of 3)
+         * @description Upload flow: (1) POST here, (2) PUT the raw bytes to `upload.url` with EXACTLY `upload.headers` (the file goes straight to object storage, not through this API), (3) POST /media/{id}/complete. Then poll GET /media/{id} until `status` is READY (or FAILED/REJECTED). Attach READY media to posts via POST /posts.
+         */
+        post: operations["initMediaUpload"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/media/{id}/complete": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Confirm the file was uploaded and start processing (step 3 of 3)
+         * @description Idempotent. Fails with UPLOAD_INCOMPLETE if the object is missing or its size differs from what was declared.
+         */
+        post: operations["completeMediaUpload"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/media/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Status and URLs of your own media (poll while PROCESSING)
+         * @description Owner only. Other people see media only as part of posts they are allowed to see.
+         */
+        get: operations["getMedia"];
+        put?: never;
+        post?: never;
+        /** Delete your media (refused while attached to a post) */
+        delete: operations["deleteMedia"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/media/{id}/retry": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Retry processing of media that FAILED with PROCESSING_ERROR */
+        post: operations["retryMediaProcessing"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/storage/upload": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** DEV ONLY (local storage driver): signed upload target */
+        put: operations["devLocalUpload"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/storage/files/{*}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** DEV ONLY (local storage driver): signed file download */
+        get: operations["devLocalFile"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/dev/outbox": {
         parameters: {
             query?: never;
@@ -991,6 +1141,57 @@ export interface components {
                 scheduledFor: components["schemas"]["IsoDateTime"];
             } | null;
         };
+        Media: {
+            id: components["schemas"]["Id"];
+            kind: components["schemas"]["MediaKind"];
+            purpose: components["schemas"]["MediaPurpose"];
+            status: components["schemas"]["MediaStatus"];
+            failureCode: components["schemas"]["MediaFailureCode"] | null;
+            width: number | null;
+            height: number | null;
+            /** @description width / height of the processed media; use it to reserve layout space. */
+            aspectRatio: number | null;
+            durationMs: number | null;
+            hasAudio: boolean | null;
+            urls: components["schemas"]["MediaUrls"];
+            urlsExpireAt: components["schemas"]["IsoDateTime"] | null;
+            createdAt: components["schemas"]["IsoDateTime"];
+            readyAt: components["schemas"]["IsoDateTime"] | null;
+        };
+        /**
+         * @description Why processing failed. PROCESSING_ERROR is transient and can be retried via POST /media/{id}/retry; the rest are permanent.
+         * @enum {string}
+         */
+        MediaFailureCode: "INVALID_MEDIA" | "UNSUPPORTED_FORMAT" | "TOO_LONG" | "TOO_LARGE_DIMENSIONS" | "TOO_SMALL" | "MODERATION_REJECTED" | "PROCESSING_ERROR" | "TAKEN_DOWN";
+        /** @enum {string} */
+        MediaKind: "VIDEO" | "IMAGE";
+        MediaLimits: {
+            maxVideoBytes: number;
+            maxVideoSeconds: number;
+            maxImageBytes: number;
+            maxMediaPerPost: number;
+            allowedVideoMimeTypes: string[];
+            allowedImageMimeTypes: string[];
+        };
+        /** @enum {string} */
+        MediaPurpose: "POST" | "AVATAR";
+        /** @enum {string} */
+        MediaStatus: "PENDING_UPLOAD" | "UPLOADED" | "PROCESSING" | "READY" | "FAILED" | "REJECTED";
+        /** @description Signed, expiring URLs. Re-fetch the parent resource when they expire (see urlsExpireAt). */
+        MediaUrls: {
+            /** @description Video: main MP4 (<=720x1280, H.264/AAC, faststart). Stream it directly. */
+            playback: string | null;
+            /** @description Video: data-saver MP4 (<=360x640). */
+            playbackLow: string | null;
+            /** @description Video: poster frame (JPEG). */
+            poster: string | null;
+            /** @description Video poster thumbnail or image thumbnail (JPEG, <=480px). */
+            thumbnail: string | null;
+            /** @description Image: <=2048px JPEG. */
+            large: string | null;
+            /** @description Image: <=1080px JPEG. */
+            medium: string | null;
+        };
         /** @description Visible to the owner only. Route points inside a zone are never shown to anyone else. */
         PrivacyZone: {
             id: components["schemas"]["Id"];
@@ -1151,6 +1352,21 @@ export interface components {
         };
         /** @enum {string} */
         UnitSystem: "METRIC" | "IMPERIAL";
+        UploadInitResponse: {
+            media: components["schemas"]["Media"];
+            upload: components["schemas"]["UploadInstructions"];
+        };
+        UploadInstructions: {
+            /** @constant */
+            method: "PUT";
+            /** @description Presigned URL. PUT the raw file bytes here (no multipart, no auth header). */
+            url: string;
+            /** @description Send EXACTLY these headers with the PUT; they are part of the signature. */
+            headers: {
+                [key: string]: string;
+            };
+            expiresAt: components["schemas"]["IsoDateTime"];
+        };
         /** @enum {string} */
         UserRole: "USER" | "MODERATOR" | "ADMIN";
         /** @enum {string} */
@@ -1962,6 +2178,97 @@ export interface operations {
             };
             /** @description Default Response */
             429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    setAvatar: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    mediaId: components["schemas"]["Id"];
+                };
+            };
+        };
+        responses: {
+            /** @description Default Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Profile"];
+                };
+            };
+            /** @description Default Response */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Default Response */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Default Response */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Default Response */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    removeAvatar: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Default Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Profile"];
+                };
+            };
+            /** @description Default Response */
+            401: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -3440,6 +3747,415 @@ export interface operations {
             };
             /** @description Default Response */
             422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    getMediaLimits: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Default Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MediaLimits"];
+                };
+            };
+            /** @description Default Response */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    initMediaUpload: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    kind: components["schemas"]["MediaKind"];
+                    purpose?: components["schemas"]["MediaPurpose"];
+                    /** @description One of /v1/media/limits -> allowed*MimeTypes. */
+                    mimeType: string;
+                    /** @description Exact size of the file you will upload. */
+                    sizeBytes: number;
+                };
+            };
+        };
+        responses: {
+            /** @description Default Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UploadInitResponse"];
+                };
+            };
+            /** @description Default Response */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Default Response */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Default Response */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Default Response */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    completeMediaUpload: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: components["schemas"]["Id"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Default Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Media"];
+                };
+            };
+            /** @description Default Response */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Default Response */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Default Response */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Default Response */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    getMedia: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: components["schemas"]["Id"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Default Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Media"];
+                };
+            };
+            /** @description Default Response */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Default Response */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    deleteMedia: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: components["schemas"]["Id"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No content. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Default Response */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Default Response */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Default Response */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    retryMediaProcessing: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: components["schemas"]["Id"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Default Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Media"];
+                };
+            };
+            /** @description Default Response */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Default Response */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Default Response */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Default Response */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    devLocalUpload: {
+        parameters: {
+            query: {
+                key: string;
+                exp: number;
+                sig: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No content. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Default Response */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Default Response */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    devLocalFile: {
+        parameters: {
+            query: {
+                exp: number;
+                sig: string;
+            };
+            header?: never;
+            path: {
+                "*": string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Default Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Default Response */
+            206: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Default Response */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Default Response */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Default Response */
+            416: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Default Response */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };

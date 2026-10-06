@@ -8,3 +8,4 @@ export * from './auth';
 export * from './social';
 export * from './sports';
 export * from './activities';
+export * from './media';

@@ -13,6 +13,7 @@ import { AppError } from '../../platform/errors';
 import { loadRelations } from '../social/relations';
 import type { SocialService } from '../social/service';
 import { accountVisibleTo } from '../social/visibility';
+import type { MediaService } from '../media/service';
 import { ageOn } from '../users/age';
 import type { UserDirectory } from '../users/directory';
 import { checkUsername } from '../users/username-policy';
@@ -28,6 +29,7 @@ export class ProfileService {
     private readonly clock: Clock,
     private readonly directory: UserDirectory,
     private readonly social: SocialService,
+    private readonly media: MediaService,
   ) {}
 
   // ------------------------------------------------------------------ reads
@@ -204,6 +206,26 @@ export class ProfileService {
         if (isUniqueViolation(err, 'profiles_username_key')) throw new AppError('USERNAME_TAKEN');
         throw err;
       }
+    }
+    return this.getProfile(userId, { id: userId });
+  }
+
+  /** Sets (or clears, with null) the avatar. The media must be a READY avatar-purpose image you own. */
+  async setAvatar(userId: string, mediaId: string | null): Promise<Profile> {
+    if (mediaId !== null) await this.media.assertReadyOwned(userId, mediaId, 'AVATAR');
+    const previous = await this.db
+      .selectFrom('profiles')
+      .select('avatarMediaId')
+      .where('userId', '=', userId)
+      .executeTakeFirstOrThrow();
+    await this.db
+      .updateTable('profiles')
+      .set({ avatarMediaId: mediaId })
+      .where('userId', '=', userId)
+      .execute();
+    // The replaced avatar image is no longer referenced anywhere: reclaim its storage.
+    if (previous.avatarMediaId && previous.avatarMediaId !== mediaId) {
+      await this.media.delete(userId, previous.avatarMediaId).catch(() => undefined);
     }
     return this.getProfile(userId, { id: userId });
   }

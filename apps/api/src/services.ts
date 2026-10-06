@@ -1,4 +1,6 @@
 import { ActivityFlows } from './flows/log-activity';
+import { MediaService } from './modules/media/service';
+import { Ffmpeg } from './modules/media/ffmpeg';
 import { ActivityService } from './modules/activities/service';
 import { AccessTokenService } from './modules/auth/access-token';
 import { AuthService } from './modules/auth/service';
@@ -11,6 +13,10 @@ import { AgePolicy } from './modules/users/age-policy';
 import { UserDirectory } from './modules/users/directory';
 import { UserRepository } from './modules/users/repository';
 import type { PlatformContext } from './platform/context';
+import { AllowAllModerator, type ContentModerator } from './platform/ports/content-moderation';
+import { LocalStorage } from './platform/storage/local';
+import { S3Storage } from './platform/storage/s3';
+import type { ObjectStorage } from './platform/storage/types';
 import { ConsoleMailer } from './platform/mail/console';
 import { MailService } from './platform/mail/service';
 import { SmtpMailer } from './platform/mail/smtp';
@@ -34,6 +40,8 @@ export interface Services {
   readonly auth: AuthService;
   readonly sports: SportService;
   readonly social: SocialService;
+  readonly storage: ObjectStorage;
+  readonly media: MediaService;
   readonly profiles: ProfileService;
   readonly agePolicy: AgePolicy;
   readonly activities: ActivityService;
@@ -43,6 +51,8 @@ export interface Services {
 
 export interface ServiceOverrides {
   mailer?: Mailer;
+  storage?: ObjectStorage;
+  moderator?: ContentModerator;
 }
 
 export function createServices(
@@ -65,7 +75,31 @@ export function createServices(
   const auth = new AuthService(config, db, clock, users, accessTokens, mail, metrics);
   const sports = new SportService(db, clock);
   const social = new SocialService(db, directory, notifier);
-  const profiles = new ProfileService(config, db, clock, directory, social);
+  const storage: ObjectStorage =
+    overrides.storage ??
+    (config.STORAGE_DRIVER === 's3'
+      ? new S3Storage(
+          {
+            bucket: config.S3_BUCKET ?? '',
+            region: config.S3_REGION,
+            endpoint: config.S3_ENDPOINT,
+            accessKeyId: config.S3_ACCESS_KEY_ID ?? '',
+            secretAccessKey: config.S3_SECRET_ACCESS_KEY ?? '',
+            forcePathStyle: config.S3_FORCE_PATH_STYLE,
+          },
+          clock,
+        )
+      : new LocalStorage(
+          config.LOCAL_STORAGE_DIR,
+          config.MEDIA_SIGNING_SECRET,
+          config.PUBLIC_BASE_URL,
+          clock,
+        ));
+  const moderator = overrides.moderator ?? new AllowAllModerator();
+  const ffmpeg = new Ffmpeg(config.FFMPEG_PATH, config.FFPROBE_PATH);
+  const media = new MediaService(config, db, clock, storage, jobs, ffmpeg, moderator, logger);
+  directory.setAvatarResolver(media.resolveAvatars);
+  const profiles = new ProfileService(config, db, clock, directory, social, media);
   const agePolicy = new AgePolicy(config, db, clock);
   const activities = new ActivityService(db, clock, sports, directory, agePolicy);
   const integrations = new IntegrationService(db);
@@ -81,6 +115,8 @@ export function createServices(
     auth,
     sports,
     social,
+    storage,
+    media,
     profiles,
     agePolicy,
     activities,

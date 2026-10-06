@@ -1169,6 +1169,267 @@
         ],
         "additionalProperties": false
       },
+      "Media": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "$ref": "#/components/schemas/Id"
+          },
+          "kind": {
+            "$ref": "#/components/schemas/MediaKind"
+          },
+          "purpose": {
+            "$ref": "#/components/schemas/MediaPurpose"
+          },
+          "status": {
+            "$ref": "#/components/schemas/MediaStatus"
+          },
+          "failureCode": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/MediaFailureCode"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "width": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": -9007199254740991,
+                "maximum": 9007199254740991
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "height": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": -9007199254740991,
+                "maximum": 9007199254740991
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "aspectRatio": {
+            "description": "width / height of the processed media; use it to reserve layout space.",
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "durationMs": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": -9007199254740991,
+                "maximum": 9007199254740991
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "hasAudio": {
+            "type": [
+              "boolean",
+              "null"
+            ]
+          },
+          "urls": {
+            "$ref": "#/components/schemas/MediaUrls"
+          },
+          "urlsExpireAt": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/IsoDateTime"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "createdAt": {
+            "$ref": "#/components/schemas/IsoDateTime"
+          },
+          "readyAt": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/IsoDateTime"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "kind",
+          "purpose",
+          "status",
+          "failureCode",
+          "width",
+          "height",
+          "aspectRatio",
+          "durationMs",
+          "hasAudio",
+          "urls",
+          "urlsExpireAt",
+          "createdAt",
+          "readyAt"
+        ],
+        "additionalProperties": false
+      },
+      "MediaFailureCode": {
+        "type": "string",
+        "enum": [
+          "INVALID_MEDIA",
+          "UNSUPPORTED_FORMAT",
+          "TOO_LONG",
+          "TOO_LARGE_DIMENSIONS",
+          "TOO_SMALL",
+          "MODERATION_REJECTED",
+          "PROCESSING_ERROR",
+          "TAKEN_DOWN"
+        ],
+        "description": "Why processing failed. PROCESSING_ERROR is transient and can be retried via POST /media/{id}/retry; the rest are permanent."
+      },
+      "MediaKind": {
+        "type": "string",
+        "enum": [
+          "VIDEO",
+          "IMAGE"
+        ]
+      },
+      "MediaLimits": {
+        "type": "object",
+        "properties": {
+          "maxVideoBytes": {
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991
+          },
+          "maxVideoSeconds": {
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991
+          },
+          "maxImageBytes": {
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991
+          },
+          "maxMediaPerPost": {
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991
+          },
+          "allowedVideoMimeTypes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "allowedImageMimeTypes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "maxVideoBytes",
+          "maxVideoSeconds",
+          "maxImageBytes",
+          "maxMediaPerPost",
+          "allowedVideoMimeTypes",
+          "allowedImageMimeTypes"
+        ],
+        "additionalProperties": false
+      },
+      "MediaPurpose": {
+        "type": "string",
+        "enum": [
+          "POST",
+          "AVATAR"
+        ]
+      },
+      "MediaStatus": {
+        "type": "string",
+        "enum": [
+          "PENDING_UPLOAD",
+          "UPLOADED",
+          "PROCESSING",
+          "READY",
+          "FAILED",
+          "REJECTED"
+        ]
+      },
+      "MediaUrls": {
+        "type": "object",
+        "properties": {
+          "playback": {
+            "description": "Video: main MP4 (<=720x1280, H.264/AAC, faststart). Stream it directly.",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "playbackLow": {
+            "description": "Video: data-saver MP4 (<=360x640).",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "poster": {
+            "description": "Video: poster frame (JPEG).",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "thumbnail": {
+            "description": "Video poster thumbnail or image thumbnail (JPEG, <=480px).",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "large": {
+            "description": "Image: <=2048px JPEG.",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "medium": {
+            "description": "Image: <=1080px JPEG.",
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "playback",
+          "playbackLow",
+          "poster",
+          "thumbnail",
+          "large",
+          "medium"
+        ],
+        "additionalProperties": false,
+        "description": "Signed, expiring URLs. Re-fetch the parent resource when they expire (see urlsExpireAt)."
+      },
       "PrivacyZone": {
         "type": "object",
         "properties": {
@@ -1872,6 +2133,55 @@
           "METRIC",
           "IMPERIAL"
         ]
+      },
+      "UploadInitResponse": {
+        "type": "object",
+        "properties": {
+          "media": {
+            "$ref": "#/components/schemas/Media"
+          },
+          "upload": {
+            "$ref": "#/components/schemas/UploadInstructions"
+          }
+        },
+        "required": [
+          "media",
+          "upload"
+        ],
+        "additionalProperties": false
+      },
+      "UploadInstructions": {
+        "type": "object",
+        "properties": {
+          "method": {
+            "type": "string",
+            "const": "PUT"
+          },
+          "url": {
+            "type": "string",
+            "description": "Presigned URL. PUT the raw file bytes here (no multipart, no auth header)."
+          },
+          "headers": {
+            "type": "object",
+            "propertyNames": {
+              "type": "string"
+            },
+            "additionalProperties": {
+              "type": "string"
+            },
+            "description": "Send EXACTLY these headers with the PUT; they are part of the signature."
+          },
+          "expiresAt": {
+            "$ref": "#/components/schemas/IsoDateTime"
+          }
+        },
+        "required": [
+          "method",
+          "url",
+          "headers",
+          "expiresAt"
+        ],
+        "additionalProperties": false
       },
       "UserRole": {
         "type": "string",
@@ -3075,6 +3385,126 @@
             }
           },
           "429": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/me/avatar": {
+      "put": {
+        "operationId": "setAvatar",
+        "summary": "Use a READY avatar image as your profile picture",
+        "tags": [
+          "Me"
+        ],
+        "description": "Upload an image with `purpose: \"AVATAR\"` via /media/uploads first. Avatars are centre-cropped to a square.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "mediaId": {
+                    "$ref": "#/components/schemas/Id"
+                  }
+                },
+                "required": [
+                  "mediaId"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Profile"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "operationId": "removeAvatar",
+        "summary": "Remove your profile picture",
+        "tags": [
+          "Me"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Profile"
+                }
+              }
+            }
+          },
+          "401": {
             "description": "Default Response",
             "content": {
               "application/json": {
@@ -5404,6 +5834,575 @@
             }
           },
           "422": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/media/limits": {
+      "get": {
+        "operationId": "getMediaLimits",
+        "summary": "Upload limits and accepted formats (validate client-side before uploading)",
+        "tags": [
+          "Media"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MediaLimits"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/media/uploads": {
+      "post": {
+        "operationId": "initMediaUpload",
+        "summary": "Start an upload and get a presigned URL (step 1 of 3)",
+        "tags": [
+          "Media"
+        ],
+        "description": "Upload flow: (1) POST here, (2) PUT the raw bytes to `upload.url` with EXACTLY `upload.headers` (the file goes straight to object storage, not through this API), (3) POST /media/{id}/complete. Then poll GET /media/{id} until `status` is READY (or FAILED/REJECTED). Attach READY media to posts via POST /posts.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "$ref": "#/components/schemas/MediaKind"
+                  },
+                  "purpose": {
+                    "$ref": "#/components/schemas/MediaPurpose"
+                  },
+                  "mimeType": {
+                    "type": "string",
+                    "minLength": 3,
+                    "maxLength": 100,
+                    "description": "One of /v1/media/limits -> allowed*MimeTypes."
+                  },
+                  "sizeBytes": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 9007199254740991,
+                    "description": "Exact size of the file you will upload."
+                  }
+                },
+                "required": [
+                  "kind",
+                  "mimeType",
+                  "sizeBytes"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UploadInitResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "413": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/media/{id}/complete": {
+      "post": {
+        "operationId": "completeMediaUpload",
+        "summary": "Confirm the file was uploaded and start processing (step 3 of 3)",
+        "tags": [
+          "Media"
+        ],
+        "description": "Idempotent. Fails with UPLOAD_INCOMPLETE if the object is missing or its size differs from what was declared.",
+        "parameters": [
+          {
+            "schema": {
+              "$ref": "#/components/schemas/Id"
+            },
+            "in": "path",
+            "name": "id",
+            "required": true
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Media"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/media/{id}": {
+      "get": {
+        "operationId": "getMedia",
+        "summary": "Status and URLs of your own media (poll while PROCESSING)",
+        "tags": [
+          "Media"
+        ],
+        "description": "Owner only. Other people see media only as part of posts they are allowed to see.",
+        "parameters": [
+          {
+            "schema": {
+              "$ref": "#/components/schemas/Id"
+            },
+            "in": "path",
+            "name": "id",
+            "required": true
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Media"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "operationId": "deleteMedia",
+        "summary": "Delete your media (refused while attached to a post)",
+        "tags": [
+          "Media"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "$ref": "#/components/schemas/Id"
+            },
+            "in": "path",
+            "name": "id",
+            "required": true
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No content."
+          },
+          "401": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/media/{id}/retry": {
+      "post": {
+        "operationId": "retryMediaProcessing",
+        "summary": "Retry processing of media that FAILED with PROCESSING_ERROR",
+        "tags": [
+          "Media"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "$ref": "#/components/schemas/Id"
+            },
+            "in": "path",
+            "name": "id",
+            "required": true
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Media"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/storage/upload": {
+      "put": {
+        "operationId": "devLocalUpload",
+        "summary": "DEV ONLY (local storage driver): signed upload target",
+        "tags": [
+          "Dev"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 3,
+              "maxLength": 300
+            },
+            "in": "query",
+            "name": "key",
+            "required": true
+          },
+          {
+            "schema": {
+              "type": "integer",
+              "minimum": -9007199254740991,
+              "maximum": 9007199254740991
+            },
+            "in": "query",
+            "name": "exp",
+            "required": true
+          },
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 20,
+              "maxLength": 100
+            },
+            "in": "query",
+            "name": "sig",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "No content."
+          },
+          "403": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/storage/files/{*}": {
+      "get": {
+        "operationId": "devLocalFile",
+        "summary": "DEV ONLY (local storage driver): signed file download",
+        "tags": [
+          "Dev"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "integer",
+              "minimum": -9007199254740991,
+              "maximum": 9007199254740991
+            },
+            "in": "query",
+            "name": "exp",
+            "required": true
+          },
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 20,
+              "maxLength": 100
+            },
+            "in": "query",
+            "name": "sig",
+            "required": true
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "name": "*",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "206": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "403": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "416": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
             "description": "Default Response",
             "content": {
               "application/json": {

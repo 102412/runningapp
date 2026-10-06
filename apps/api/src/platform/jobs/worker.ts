@@ -4,11 +4,23 @@ import type { z } from 'zod';
 import type { Metrics } from '../metrics/metrics';
 import type { ClaimedJob, JobQueue, JobSpec } from './queue';
 
-export type JobHandler<S extends z.ZodType> = (payload: z.output<S>) => Promise<void>;
+export interface JobContext {
+  jobId: string;
+  /** 1-based attempt number. */
+  attempt: number;
+  maxAttempts: number;
+  /** True on the last attempt: handlers can record a permanent failure instead of retrying. */
+  isFinalAttempt: boolean;
+}
+
+export type JobHandler<S extends z.ZodType> = (
+  payload: z.output<S>,
+  ctx: JobContext,
+) => Promise<void>;
 
 interface Registered {
   spec: JobSpec;
-  handler: (payload: unknown) => Promise<void>;
+  handler: (payload: unknown, ctx: JobContext) => Promise<void>;
 }
 
 /** Name -> handler map. Modules register their jobs here at composition time. */
@@ -19,7 +31,7 @@ export class JobRegistry {
     if (this.handlers.has(spec.name)) throw new Error(`Job ${spec.name} registered twice`);
     this.handlers.set(spec.name, {
       spec,
-      handler: (payload) => handler(spec.schema.parse(payload)),
+      handler: (payload, ctx) => handler(spec.schema.parse(payload), ctx),
     });
   }
 
@@ -107,7 +119,12 @@ export class JobWorker {
       if (!registered) throw new Error(`No handler registered for job "${job.name}"`);
       if (job.attempts > job.maxAttempts)
         throw new Error('Exceeded max attempts (worker crashed mid-run)');
-      await registered.handler(job.payload);
+      await registered.handler(job.payload, {
+        jobId: job.id,
+        attempt: job.attempts,
+        maxAttempts: job.maxAttempts,
+        isFinalAttempt: job.attempts >= job.maxAttempts,
+      });
       await this.queue.complete(job.id);
       this.options.metrics?.jobsProcessed.inc({ name: job.name, outcome: 'success' });
       log.debug('job succeeded');

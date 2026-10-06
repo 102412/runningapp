@@ -80,6 +80,27 @@ export async function signupUser(t: TestApp, options: SignupOptions = {}): Promi
   };
 }
 
+/** Signs in again (fresh tokens). Use after advancing the fake clock past the access-token lifetime. */
+export async function relogin(t: TestApp, user: TestUser): Promise<TestUser> {
+  const res = await t.app.inject({
+    method: 'POST',
+    url: '/v1/auth/login',
+    payload: { email: user.email, password: user.password },
+  });
+  if (res.statusCode !== 200) throw new Error(`relogin failed: ${res.statusCode} ${res.body}`);
+  const body = res.json<{
+    tokens: { accessToken: string; refreshToken: string };
+    sessionId: string;
+  }>();
+  return {
+    ...user,
+    accessToken: body.tokens.accessToken,
+    refreshToken: body.tokens.refreshToken,
+    sessionId: body.sessionId,
+    headers: { authorization: `Bearer ${body.tokens.accessToken}` },
+  };
+}
+
 export function api(t: TestApp, user?: Pick<TestUser, 'headers'> | null) {
   const call = (
     method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE',

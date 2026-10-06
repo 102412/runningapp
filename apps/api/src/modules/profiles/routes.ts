@@ -1,6 +1,8 @@
 import type { FastifyInstance } from 'fastify';
 import type { ZodTypeProvider } from 'fastify-type-provider-zod';
+import { z } from 'zod';
 import {
+  IdSchema,
   MeSchema,
   ProfileSchema,
   SettingsSchema,
@@ -50,6 +52,38 @@ export async function profileRoutes(app: FastifyInstance, s: Services): Promise<
       response: { 200: ProfileSchema, ...errors(401, 409, 422, 429) },
     },
     handler: async (req) => s.profiles.updateProfile(actor(req).userId, req.body),
+  });
+
+  r.route({
+    method: 'PUT',
+    url: '/me/avatar',
+    onRequest: app.requireAuth,
+    config: rateLimitConfig(RATE_LIMITS.write),
+    schema: {
+      tags: ['Me'],
+      operationId: 'setAvatar',
+      summary: 'Use a READY avatar image as your profile picture',
+      description:
+        'Upload an image with `purpose: "AVATAR"` via /media/uploads first. Avatars are centre-cropped to a square.',
+      security: BEARER_SECURITY,
+      body: z.object({ mediaId: IdSchema }).strict(),
+      response: { 200: ProfileSchema, ...errors(401, 404, 422, 429) },
+    },
+    handler: async (req) => s.profiles.setAvatar(actor(req).userId, req.body.mediaId),
+  });
+
+  r.route({
+    method: 'DELETE',
+    url: '/me/avatar',
+    onRequest: app.requireAuth,
+    schema: {
+      tags: ['Me'],
+      operationId: 'removeAvatar',
+      summary: 'Remove your profile picture',
+      security: BEARER_SECURITY,
+      response: { 200: ProfileSchema, ...errors(401) },
+    },
+    handler: async (req) => s.profiles.setAvatar(actor(req).userId, null),
   });
 
   r.route({

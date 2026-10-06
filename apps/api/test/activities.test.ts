@@ -274,7 +274,8 @@ describe('activities', () => {
         const page = await api(t, u).get(
           `/users/${u.id}/activities?limit=2${cursor ? `&cursor=${cursor}` : ''}`,
         );
-        const body: { items: Array<{ startedAt: string }>; nextCursor: string | null } = page.json();
+        const body: { items: Array<{ startedAt: string }>; nextCursor: string | null } =
+          page.json();
         seen.push(...body.items.map((a) => a.startedAt));
         cursor = body.nextCursor;
       } while (cursor);

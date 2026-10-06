@@ -1,3 +1,4 @@
+import { MediaCleanupJob, MediaDeleteObjectsJob, MediaProcessJob } from './modules/media/service';
 import { SendEmailJob } from './platform/mail/service';
 import { z } from 'zod';
 import { PurgeFinishedJobsJob, purgeFinishedJobsHandler } from './platform/jobs/maintenance';
@@ -16,10 +17,14 @@ export function registerJobs(services: Services): { registry: JobRegistry; sched
   registry.register(PurgeFinishedJobsJob, purgeFinishedJobsHandler(platform.jobs, platform.clock));
   registry.register(SendEmailJob, services.mail.handleSendEmail);
   registry.register(PurgeAuthDataJob, () => services.auth.purgeExpired());
+  registry.register(MediaProcessJob, services.media.handleProcess);
+  registry.register(MediaDeleteObjectsJob, services.media.handleDeleteObjects);
+  registry.register(MediaCleanupJob, services.media.handleCleanup);
 
   const schedules: Schedule[] = [
     { spec: PurgeFinishedJobsJob, payload: {}, everySeconds: 3600 },
     { spec: PurgeAuthDataJob, payload: {}, everySeconds: 3600 },
+    { spec: MediaCleanupJob, payload: {}, everySeconds: 900 },
   ];
   return { registry, schedules };
 }

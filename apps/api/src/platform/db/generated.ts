@@ -39,6 +39,16 @@ export type JsonPrimitive = boolean | number | string | null;
 
 export type JsonValue = JsonArray | JsonObject | JsonPrimitive;
 
+export type MediaKind = "IMAGE" | "VIDEO";
+
+export type MediaModerationStatus = "APPROVED" | "PENDING" | "REJECTED";
+
+export type MediaPurpose = "AVATAR" | "POST";
+
+export type MediaStatus = "FAILED" | "PENDING_UPLOAD" | "PROCESSING" | "READY" | "REJECTED" | "UPLOADED";
+
+export type MediaVariantKind = "IMAGE_LARGE" | "IMAGE_MEDIUM" | "IMAGE_THUMB" | "POSTER" | "POSTER_THUMB" | "VIDEO_MP4_HIGH" | "VIDEO_MP4_LOW";
+
 export type NotificationType = "COMMENT_REACTION" | "COMMENT_REPLY" | "FOLLOW_ACCEPTED" | "FOLLOW_REQUEST" | "MENTION_COMMENT" | "MENTION_POST" | "MODERATION_ACTION" | "NEW_FOLLOWER" | "POST_COMMENT" | "POST_PUBLISH_FAILED" | "POST_PUBLISHED" | "POST_REACTION";
 
 export type OauthProvider = "APPLE" | "GOOGLE";
@@ -200,6 +210,13 @@ export interface IdempotencyKeys {
   userId: string;
 }
 
+export interface ImageAssets {
+  aspectRatio: Generated<number | null>;
+  height: number;
+  mediaId: string;
+  width: number;
+}
+
 export interface IntegrationConnections {
   accessTokenSealed: string | null;
   createdAt: Generated<Timestamp>;
@@ -238,6 +255,40 @@ export interface LoginThrottles {
   failureCount: Generated<number>;
   lockedUntil: Timestamp | null;
   updatedAt: Generated<Timestamp>;
+}
+
+export interface MediaAssets {
+  actualSizeBytes: number | null;
+  createdAt: Generated<Timestamp>;
+  declaredMime: string;
+  declaredSizeBytes: number;
+  failureCode: string | null;
+  failureDetail: string | null;
+  id: Generated<string>;
+  kind: MediaKind;
+  moderationStatus: Generated<MediaModerationStatus>;
+  ownerId: string;
+  processingStartedAt: Timestamp | null;
+  purpose: MediaPurpose;
+  readyAt: Timestamp | null;
+  status: Generated<MediaStatus>;
+  storageKey: string;
+  updatedAt: Generated<Timestamp>;
+  uploadedAt: Timestamp | null;
+  uploadExpiresAt: Timestamp;
+}
+
+export interface MediaVariants {
+  bitrateKbps: number | null;
+  createdAt: Generated<Timestamp>;
+  height: number | null;
+  id: Generated<string>;
+  kind: MediaVariantKind;
+  mediaId: string;
+  mimeType: string;
+  sizeBytes: number;
+  storageKey: string;
+  width: number | null;
 }
 
 export interface NotificationPreferences {
@@ -375,6 +426,19 @@ export interface UserSettings {
   userId: string;
 }
 
+export interface VideoAssets {
+  aspectRatio: Generated<number | null>;
+  audioCodec: string | null;
+  bitrateKbps: number | null;
+  durationMs: number;
+  fps: number | null;
+  hasAudio: Generated<boolean>;
+  height: number;
+  mediaId: string;
+  videoCodec: string | null;
+  width: number;
+}
+
 export interface DB {
   activities: Activities;
   activityMetrics: ActivityMetrics;
@@ -388,9 +452,12 @@ export interface DB {
   followRequests: FollowRequests;
   follows: Follows;
   idempotencyKeys: IdempotencyKeys;
+  imageAssets: ImageAssets;
   integrationConnections: IntegrationConnections;
   jobs: Jobs;
   loginThrottles: LoginThrottles;
+  mediaAssets: MediaAssets;
+  mediaVariants: MediaVariants;
   notificationPreferences: NotificationPreferences;
   notifications: Notifications;
   oauthIdentities: OauthIdentities;
@@ -402,4 +469,5 @@ export interface DB {
   sports: Sports;
   users: Users;
   userSettings: UserSettings;
+  videoAssets: VideoAssets;
 }
