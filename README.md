@@ -55,7 +55,7 @@ apps/api/                 The API + worker (Fastify, Kysely, PostgreSQL)
   src/services.ts           Composition root: the whole dependency graph in one file
   migrations/               Forward-only SQL migrations (checksummed)
   scripts/                  migrate, reset, codegen, seed, admin:grant, OpenAPI generation
-  test/                     426 tests: unit, integration, API, authz, privacy, N+1, security audits
+  test/                     430+ tests: unit, integration, API, authz, privacy, N+1, security audits
 packages/contracts/       Zod schemas + enums + error catalog: the single source of truth for the API shape
 packages/api-client/      Typed client (generated types + token refresh, pagination, event buffer, uploads)
 docs/                     Architecture, API conventions, database, security, media, feed, front-end guide

@@ -8,13 +8,13 @@ something could **not** be verified in the authoring environment, it says so.
 providers later), and is encouraged to attach a short vertical video or photo. Activity and post are
 related but independent.
 
-**Verification at hand-off** (run in the authoring environment, Linux, Node 22, PostgreSQL 16, ffmpeg):
-`pnpm format:check`, `pnpm lint`, `pnpm deadcode` (knip), `pnpm typecheck`, `pnpm test` (**426 API tests
-
-- 25 client tests, all passing**), `pnpm build`, `pnpm openapi` (no diff), `pnpm audit --prod` (no known
-  vulnerabilities), seed run end to end, production bundle started from a simulated container layout.
-  **Not verified here:** the Docker image build (no Docker daemon — CI builds it), anything against a real
-  S3/R2, SMTP server, push provider or third-party OAuth/sync provider, and any load/performance testing.
+**Verification at hand-off** (run in the authoring environment: Linux, Node 22, PostgreSQL 16, ffmpeg):
+`pnpm format:check`, `pnpm lint`, `pnpm deadcode` (knip), `pnpm typecheck`, `pnpm test` (**431 API tests and
+25 client tests, all passing**), `pnpm build`, `pnpm openapi` (no diff), `pnpm audit --prod` (no known
+vulnerabilities at the time), the seed end to end, and the production bundle started from a simulated
+container layout. **Not verified here:** the Docker image build (no Docker daemon — CI builds it), anything
+against a real S3/R2, SMTP server, push provider or third-party OAuth/sync provider, and any
+load/performance testing.
 
 ## What exists
 
