@@ -9,6 +9,7 @@ import {
   CreatePrivacyZoneRequestSchema,
   IdParamSchema,
   ImportGpxQuerySchema,
+  LoggedActivitySchema,
   IntegrationListSchema,
   IntegrationProvider,
   PrivacyZoneListSchema,
@@ -52,12 +53,16 @@ export async function activityRoutes(app: FastifyInstance, s: Services): Promise
         'Metrics are all optional; supplying one the sport does not support is rejected with `METRIC_NOT_SUPPORTED_FOR_SPORT`. Units are SI (metres, seconds, m/s). When `createPost` is true (default: your `autoCreateActivityPost` setting) a feed post is created for the activity.',
       security: BEARER_SECURITY,
       body: CreateActivityRequestSchema,
-      response: { 201: ActivitySchema, ...errors(401, 403, 422, 429) },
+      response: { 201: LoggedActivitySchema, ...errors(401, 403, 409, 422, 429) },
     },
-    handler: async (req, reply) => {
-      const { activity } = await s.flows.logActivity(actor(req).userId, req.body);
-      return reply.status(201).send(activity);
-    },
+    handler: async (req, reply) =>
+      s.idempotency.handle(req, reply, actor(req).userId, async () => {
+        const { activity } = await s.flows.logActivity(
+          { id: actor(req).userId, emailVerified: actor(req).emailVerified },
+          req.body,
+        );
+        return { status: 201, body: activity };
+      }),
   });
 
   r.route({
@@ -76,7 +81,11 @@ export async function activityRoutes(app: FastifyInstance, s: Services): Promise
       consumes: ['application/gpx+xml', 'application/xml', 'text/xml'],
       querystring: ImportGpxQuerySchema,
       body: z.string().min(20),
-      response: { 200: ActivitySchema, 201: ActivitySchema, ...errors(401, 413, 415, 422, 429) },
+      response: {
+        200: LoggedActivitySchema,
+        201: LoggedActivitySchema,
+        ...errors(401, 413, 415, 422, 429),
+      },
     },
     handler: async (req, reply) => {
       let imported;
@@ -104,11 +113,15 @@ export async function activityRoutes(app: FastifyInstance, s: Services): Promise
         isRace: req.query.isRace,
       });
       if (req.query.createPost !== undefined) request.createPost = req.query.createPost;
-      const { activity, created } = await s.flows.logActivity(actor(req).userId, request, {
-        source: 'FILE_IMPORT',
-        externalId: imported.externalId,
-        skipCapabilityCheck: true,
-      });
+      const { activity, created } = await s.flows.logActivity(
+        { id: actor(req).userId, emailVerified: actor(req).emailVerified },
+        request,
+        {
+          source: 'FILE_IMPORT',
+          externalId: imported.externalId,
+          skipCapabilityCheck: true,
+        },
+      );
       return reply.status(created ? 201 : 200).send(activity);
     },
   });

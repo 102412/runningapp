@@ -78,6 +78,8 @@ export const ERROR_CATALOG = {
     status: 422,
     message: 'A provided metric is not supported for this sport.',
   },
+  CONTENT_REJECTED: { status: 422, message: 'This content was not accepted.' },
+  EMPTY_POST: { status: 422, message: 'A post needs a caption, an activity or media.' },
   SELF_ACTION_NOT_ALLOWED: { status: 422, message: 'You cannot do that to yourself.' },
   MEDIA_NOT_READY: { status: 422, message: 'The media is not ready.' },
   MEDIA_REJECTED: { status: 422, message: 'The media was rejected and cannot be used.' },

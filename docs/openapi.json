@@ -579,6 +579,82 @@
         ],
         "additionalProperties": false
       },
+      "BrandPartnership": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "$ref": "#/components/schemas/Id"
+          },
+          "brandName": {
+            "type": "string"
+          },
+          "brandUrl": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "type": {
+            "$ref": "#/components/schemas/SponsorshipType"
+          },
+          "startedOn": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/IsoDate"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "endedOn": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/IsoDate"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "createdAt": {
+            "$ref": "#/components/schemas/IsoDateTime"
+          }
+        },
+        "required": [
+          "id",
+          "brandName",
+          "brandUrl",
+          "type",
+          "startedOn",
+          "endedOn",
+          "createdAt"
+        ],
+        "additionalProperties": false
+      },
+      "BrandPartnershipPage": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BrandPartnership"
+            }
+          },
+          "nextCursor": {
+            "description": "Pass as `cursor` to fetch the next page; null when there are no more items.",
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "items",
+          "nextCursor"
+        ],
+        "additionalProperties": false
+      },
       "CommentPermission": {
         "type": "string",
         "enum": [
@@ -878,6 +954,8 @@
           "UNSUPPORTED_MEDIA_TYPE",
           "VALIDATION_FAILED",
           "METRIC_NOT_SUPPORTED_FOR_SPORT",
+          "CONTENT_REJECTED",
+          "EMPTY_POST",
           "SELF_ACTION_NOT_ALLOWED",
           "MEDIA_NOT_READY",
           "MEDIA_REJECTED",
@@ -1098,6 +1176,206 @@
         "format": "date-time",
         "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$",
         "description": "ISO-8601 timestamp."
+      },
+      "LoggedActivity": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "$ref": "#/components/schemas/Id"
+          },
+          "user": {
+            "$ref": "#/components/schemas/UserSummary"
+          },
+          "sport": {
+            "$ref": "#/components/schemas/SportKey"
+          },
+          "subtype": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "isRace": {
+            "type": "boolean"
+          },
+          "title": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "startedAt": {
+            "$ref": "#/components/schemas/IsoDateTime"
+          },
+          "timezone": {
+            "type": "string",
+            "description": "IANA zone the activity took place in."
+          },
+          "elapsedTimeS": {
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991
+          },
+          "movingTimeS": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": -9007199254740991,
+                "maximum": 9007199254740991
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "distanceM": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "elevationGainM": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "elevationLossM": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "caloriesKcal": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": -9007199254740991,
+                "maximum": 9007199254740991
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "speed": {
+            "$ref": "#/components/schemas/DerivedSpeed"
+          },
+          "metrics": {
+            "$ref": "#/components/schemas/ActivityMetrics"
+          },
+          "splits": {
+            "anyOf": [
+              {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/ActivitySplit"
+                }
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Populated by the detail views (GET /activities/{id}, create, import); null in lists and feeds."
+          },
+          "hasRoute": {
+            "type": "boolean",
+            "description": "A route exists AND some of it may be shown to this viewer."
+          },
+          "routePreview": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RouteView"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Simplified (<=120 points), privacy-filtered route for cards. Fetch /route for detail."
+          },
+          "records": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ActivityRecord"
+            }
+          },
+          "visibility": {
+            "$ref": "#/components/schemas/ContentVisibility"
+          },
+          "source": {
+            "$ref": "#/components/schemas/ActivitySource"
+          },
+          "locationLabel": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "ownerPrivacy": {
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "routePrivacy": {
+                    "$ref": "#/components/schemas/RoutePrivacy"
+                  }
+                },
+                "required": [
+                  "routePrivacy"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Present only when the viewer owns the activity."
+          },
+          "createdAt": {
+            "$ref": "#/components/schemas/IsoDateTime"
+          },
+          "postId": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Id"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "The auto-generated feed post for this activity. Null when none was created (createPost=false, PRIVATE activity, or unverified email)."
+          }
+        },
+        "required": [
+          "id",
+          "user",
+          "sport",
+          "subtype",
+          "isRace",
+          "title",
+          "description",
+          "startedAt",
+          "timezone",
+          "elapsedTimeS",
+          "movingTimeS",
+          "distanceM",
+          "elevationGainM",
+          "elevationLossM",
+          "caloriesKcal",
+          "speed",
+          "metrics",
+          "splits",
+          "hasRoute",
+          "routePreview",
+          "records",
+          "visibility",
+          "source",
+          "locationLabel",
+          "ownerPrivacy",
+          "createdAt",
+          "postId"
+        ],
+        "additionalProperties": false
       },
       "Me": {
         "type": "object",
@@ -1430,6 +1708,303 @@
         "additionalProperties": false,
         "description": "Signed, expiring URLs. Re-fetch the parent resource when they expire (see urlsExpireAt)."
       },
+      "ModerationStatus": {
+        "type": "string",
+        "enum": [
+          "CLEAN",
+          "HIDDEN",
+          "REMOVED"
+        ]
+      },
+      "MyCreator": {
+        "type": "object",
+        "properties": {
+          "creator": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/CreatorProfile"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "creator"
+        ],
+        "additionalProperties": false,
+        "description": "Null until you create a creator profile."
+      },
+      "Post": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "$ref": "#/components/schemas/Id"
+          },
+          "author": {
+            "$ref": "#/components/schemas/UserSummary"
+          },
+          "origin": {
+            "description": "ACTIVITY_AUTO: generated from a logged activity. AUTHORED: written by the user.",
+            "$ref": "#/components/schemas/PostOrigin"
+          },
+          "status": {
+            "description": "Anyone other than the author only ever sees PUBLISHED.",
+            "$ref": "#/components/schemas/PostStatus"
+          },
+          "format": {
+            "description": "Primary layout hint: VIDEO > PHOTO > ACTIVITY > TEXT.",
+            "$ref": "#/components/schemas/PostFormat"
+          },
+          "caption": {
+            "type": "string"
+          },
+          "visibility": {
+            "$ref": "#/components/schemas/ContentVisibility"
+          },
+          "commentPermission": {
+            "$ref": "#/components/schemas/CommentPermission"
+          },
+          "topics": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Lower-case topic slugs without the \"#\"."
+          },
+          "mentions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PostMention"
+            }
+          },
+          "media": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Media"
+            },
+            "description": "Ordered. Non-authors only receive READY media; the author also sees in-flight and failed items."
+          },
+          "activity": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Activity"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "The attached activity, with routes privacy-filtered for this viewer."
+          },
+          "sponsorship": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Sponsorship"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "counts": {
+            "$ref": "#/components/schemas/PostCounts"
+          },
+          "viewer": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PostViewer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Null for anonymous viewers."
+          },
+          "moderationStatus": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ModerationStatus"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Author only: tells them if the post was hidden or removed."
+          },
+          "publishedAt": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/IsoDateTime"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "createdAt": {
+            "$ref": "#/components/schemas/IsoDateTime"
+          }
+        },
+        "required": [
+          "id",
+          "author",
+          "origin",
+          "status",
+          "format",
+          "caption",
+          "visibility",
+          "commentPermission",
+          "topics",
+          "mentions",
+          "media",
+          "activity",
+          "sponsorship",
+          "counts",
+          "viewer",
+          "moderationStatus",
+          "publishedAt",
+          "createdAt"
+        ],
+        "additionalProperties": false
+      },
+      "PostCounts": {
+        "type": "object",
+        "properties": {
+          "reactions": {
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991
+          },
+          "comments": {
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991
+          },
+          "shares": {
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991
+          },
+          "bookmarks": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": -9007199254740991,
+                "maximum": 9007199254740991
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Visible to the post author only."
+          }
+        },
+        "required": [
+          "reactions",
+          "comments",
+          "shares",
+          "bookmarks"
+        ],
+        "additionalProperties": false
+      },
+      "PostFormat": {
+        "type": "string",
+        "enum": [
+          "ACTIVITY",
+          "VIDEO",
+          "PHOTO",
+          "TEXT"
+        ]
+      },
+      "PostMention": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "$ref": "#/components/schemas/Id"
+          },
+          "username": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "username"
+        ],
+        "additionalProperties": false
+      },
+      "PostOrigin": {
+        "type": "string",
+        "enum": [
+          "AUTHORED",
+          "ACTIVITY_AUTO"
+        ]
+      },
+      "PostPage": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Post"
+            }
+          },
+          "nextCursor": {
+            "description": "Pass as `cursor` to fetch the next page; null when there are no more items.",
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "items",
+          "nextCursor"
+        ],
+        "additionalProperties": false
+      },
+      "PostStatus": {
+        "type": "string",
+        "enum": [
+          "DRAFT",
+          "PENDING_MEDIA",
+          "PUBLISHED",
+          "PUBLISH_FAILED"
+        ]
+      },
+      "PostViewer": {
+        "type": "object",
+        "properties": {
+          "reaction": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ReactionType"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "The viewer's current reaction, if any."
+          },
+          "bookmarked": {
+            "type": "boolean"
+          },
+          "isAuthor": {
+            "type": "boolean"
+          },
+          "canComment": {
+            "type": "boolean",
+            "description": "Whether the viewer may comment right now (post setting + relationship)."
+          }
+        },
+        "required": [
+          "reaction",
+          "bookmarked",
+          "isAuthor",
+          "canComment"
+        ],
+        "additionalProperties": false
+      },
       "PrivacyZone": {
         "type": "object",
         "properties": {
@@ -1606,6 +2181,15 @@
           "createdAt"
         ],
         "additionalProperties": false
+      },
+      "ReactionType": {
+        "type": "string",
+        "enum": [
+          "LIKE",
+          "CLAP",
+          "FIRE",
+          "STRONG"
+        ]
       },
       "RecordType": {
         "type": "string",
@@ -1858,6 +2442,47 @@
           "MILE",
           "LAP",
           "INTERVAL"
+        ]
+      },
+      "Sponsorship": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "$ref": "#/components/schemas/SponsorshipType"
+          },
+          "brandName": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string",
+            "description": "Ready-to-display disclosure text, e.g. \"Paid partnership with Acme\"."
+          },
+          "partnershipId": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Id"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "type",
+          "brandName",
+          "label",
+          "partnershipId"
+        ],
+        "additionalProperties": false
+      },
+      "SponsorshipType": {
+        "type": "string",
+        "enum": [
+          "PAID_PARTNERSHIP",
+          "GIFTED_PRODUCT",
+          "AFFILIATE",
+          "AMBASSADOR"
         ]
       },
       "Sport": {
@@ -4930,7 +5555,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Activity"
+                  "$ref": "#/components/schemas/LoggedActivity"
                 }
               }
             }
@@ -4946,6 +5571,16 @@
             }
           },
           "403": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
             "description": "Default Response",
             "content": {
               "application/json": {
@@ -5090,7 +5725,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Activity"
+                  "$ref": "#/components/schemas/LoggedActivity"
                 }
               }
             }
@@ -5100,7 +5735,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Activity"
+                  "$ref": "#/components/schemas/LoggedActivity"
                 }
               }
             }
@@ -6240,6 +6875,1373 @@
             }
           },
           "429": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/posts": {
+      "post": {
+        "operationId": "createPost",
+        "summary": "Share something (the SHOW step): caption, activity, photos/videos, sponsorship",
+        "tags": [
+          "Posts"
+        ],
+        "description": "At least one of caption / activityId / mediaIds is required. If attached media is still processing the post is `PENDING_MEDIA` (visible only to you) and publishes itself when every item is READY (or becomes `PUBLISH_FAILED` if one fails). Sponsored content MUST include `sponsorship`. Send an `Idempotency-Key` header to make retries safe.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "caption": {
+                    "type": "string",
+                    "maxLength": 2200
+                  },
+                  "visibility": {
+                    "$ref": "#/components/schemas/ContentVisibility"
+                  },
+                  "commentPermission": {
+                    "$ref": "#/components/schemas/CommentPermission"
+                  },
+                  "activityId": {
+                    "$ref": "#/components/schemas/Id"
+                  },
+                  "mediaIds": {
+                    "description": "Uploaded media (any state except FAILED/REJECTED). The post stays PENDING_MEDIA until all are READY, then publishes itself.",
+                    "maxItems": 10,
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/Id"
+                    }
+                  },
+                  "topics": {
+                    "description": "Hashtags in the caption are added automatically.",
+                    "maxItems": 10,
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 50
+                    }
+                  },
+                  "sponsorship": {
+                    "description": "Required for paid/gifted/affiliate content.",
+                    "type": "object",
+                    "properties": {
+                      "type": {
+                        "$ref": "#/components/schemas/SponsorshipType"
+                      },
+                      "brandName": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 80
+                      },
+                      "partnershipId": {
+                        "$ref": "#/components/schemas/Id"
+                      }
+                    },
+                    "required": [
+                      "type",
+                      "brandName"
+                    ],
+                    "additionalProperties": false
+                  },
+                  "publish": {
+                    "description": "Default true. False saves a private DRAFT.",
+                    "type": "boolean"
+                  }
+                },
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Post"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/posts/{id}": {
+      "get": {
+        "operationId": "getPost",
+        "summary": "One post as seen by the caller",
+        "tags": [
+          "Posts"
+        ],
+        "description": "Anonymous access works for PUBLIC posts of PUBLIC accounts (e.g. shared links). Hidden, deleted, private and blocked content all answer `POST_NOT_FOUND`.",
+        "parameters": [
+          {
+            "schema": {
+              "$ref": "#/components/schemas/Id"
+            },
+            "in": "path",
+            "name": "id",
+            "required": true
+          }
+        ],
+        "security": [
+          {},
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Post"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "operationId": "updatePost",
+        "summary": "Edit caption, audience, comment permission, topics or sponsorship",
+        "tags": [
+          "Posts"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "caption": {
+                    "type": "string",
+                    "maxLength": 2200
+                  },
+                  "visibility": {
+                    "$ref": "#/components/schemas/ContentVisibility"
+                  },
+                  "commentPermission": {
+                    "$ref": "#/components/schemas/CommentPermission"
+                  },
+                  "topics": {
+                    "maxItems": 10,
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 50
+                    }
+                  },
+                  "sponsorship": {
+                    "description": "May be added any time. Removing it is only possible while the post is unpublished.",
+                    "anyOf": [
+                      {
+                        "type": "object",
+                        "properties": {
+                          "type": {
+                            "$ref": "#/components/schemas/SponsorshipType"
+                          },
+                          "brandName": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 80
+                          },
+                          "partnershipId": {
+                            "$ref": "#/components/schemas/Id"
+                          }
+                        },
+                        "required": [
+                          "type",
+                          "brandName"
+                        ],
+                        "additionalProperties": false
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                },
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "schema": {
+              "$ref": "#/components/schemas/Id"
+            },
+            "in": "path",
+            "name": "id",
+            "required": true
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Post"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "operationId": "deletePost",
+        "summary": "Delete a post (and its media). It disappears for everyone immediately.",
+        "tags": [
+          "Posts"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "$ref": "#/components/schemas/Id"
+            },
+            "in": "path",
+            "name": "id",
+            "required": true
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No content."
+          },
+          "401": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/posts/{id}/publish": {
+      "post": {
+        "operationId": "publishPost",
+        "summary": "Publish a DRAFT or retry a PUBLISH_FAILED post",
+        "tags": [
+          "Posts"
+        ],
+        "description": "Idempotent. Fails with `MEDIA_REJECTED` while a failed/rejected media item is still attached: detach it first.",
+        "parameters": [
+          {
+            "schema": {
+              "$ref": "#/components/schemas/Id"
+            },
+            "in": "path",
+            "name": "id",
+            "required": true
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Post"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/posts/{id}/media": {
+      "post": {
+        "operationId": "attachPostMedia",
+        "summary": "Add media to an existing post (e.g. add a video to an activity post)",
+        "tags": [
+          "Posts"
+        ],
+        "description": "The DO -> LOG -> SHOW prompt: after an activity is logged, upload a video and attach it to the activity's post. Items still processing stay hidden from other people until READY; the post itself stays published.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "mediaIds": {
+                    "minItems": 1,
+                    "maxItems": 10,
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/Id"
+                    }
+                  }
+                },
+                "required": [
+                  "mediaIds"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "schema": {
+              "$ref": "#/components/schemas/Id"
+            },
+            "in": "path",
+            "name": "id",
+            "required": true
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Post"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/posts/{id}/media/{mediaId}": {
+      "delete": {
+        "operationId": "detachPostMedia",
+        "summary": "Remove one media item from a post (it stays in your media library)",
+        "tags": [
+          "Posts"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "$ref": "#/components/schemas/Id"
+            },
+            "in": "path",
+            "name": "id",
+            "required": true
+          },
+          {
+            "schema": {
+              "$ref": "#/components/schemas/Id"
+            },
+            "in": "path",
+            "name": "mediaId",
+            "required": true
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Post"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/me/posts": {
+      "get": {
+        "operationId": "listMyPosts",
+        "summary": "Your own posts in every state (drafts, pending media, failed, moderated)",
+        "tags": [
+          "Posts"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "default": 20,
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 50
+            },
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "description": "Page size, 1..50."
+          },
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 2048
+            },
+            "in": "query",
+            "name": "cursor",
+            "required": false,
+            "description": "Opaque cursor from the previous page's `nextCursor`. Never construct one yourself."
+          },
+          {
+            "schema": {
+              "$ref": "#/components/schemas/PostStatus"
+            },
+            "in": "query",
+            "name": "status",
+            "required": false
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PostPage"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/users/{userId}/posts": {
+      "get": {
+        "operationId": "listUserPosts",
+        "summary": "A user's published posts the caller may see (profile grid), newest first",
+        "tags": [
+          "Posts"
+        ],
+        "description": "Private accounts answer `ACCOUNT_PRIVATE` to non-followers. Blocked users answer `USER_NOT_FOUND`.",
+        "parameters": [
+          {
+            "schema": {
+              "default": 20,
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 50
+            },
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "description": "Page size, 1..50."
+          },
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 2048
+            },
+            "in": "query",
+            "name": "cursor",
+            "required": false,
+            "description": "Opaque cursor from the previous page's `nextCursor`. Never construct one yourself."
+          },
+          {
+            "schema": {
+              "$ref": "#/components/schemas/PostFormat"
+            },
+            "in": "query",
+            "name": "format",
+            "required": false
+          },
+          {
+            "schema": {
+              "$ref": "#/components/schemas/Id"
+            },
+            "in": "path",
+            "name": "userId",
+            "required": true
+          }
+        ],
+        "security": [
+          {},
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PostPage"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/me/creator": {
+      "get": {
+        "operationId": "getMyCreatorProfile",
+        "summary": "Your creator/professional profile, if you have one",
+        "tags": [
+          "Creators"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MyCreator"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "operationId": "upsertCreatorProfile",
+        "summary": "Become (or update) a creator: athlete, coach, brand, club...",
+        "tags": [
+          "Creators"
+        ],
+        "description": "Verification cannot be self-granted: use POST /me/creator/verification-request and staff decide.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "category": {
+                    "$ref": "#/components/schemas/CreatorCategory"
+                  },
+                  "tagline": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "maxLength": 120
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "contactEmail": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "maxLength": 254,
+                        "format": "email",
+                        "pattern": "^(?:[A-Za-z0-9_'+\\-]+\\.)*[A-Za-z0-9_'+\\-]*[A-Za-z0-9_+-]@(?:[A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "websiteUrl": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "maxLength": 300,
+                        "format": "uri"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "category"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreatorProfile"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "operationId": "deleteCreatorProfile",
+        "summary": "Remove your creator profile",
+        "tags": [
+          "Creators"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No content."
+          },
+          "401": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/me/creator/verification-request": {
+      "post": {
+        "operationId": "requestCreatorVerification",
+        "summary": "Ask staff to verify your creator account",
+        "tags": [
+          "Creators"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreatorProfile"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/me/creator/partnerships": {
+      "get": {
+        "operationId": "listBrandPartnerships",
+        "summary": "Your brand partnerships (reference them from sponsored posts)",
+        "tags": [
+          "Creators"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "default": 20,
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 50
+            },
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "description": "Page size, 1..50."
+          },
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 2048
+            },
+            "in": "query",
+            "name": "cursor",
+            "required": false,
+            "description": "Opaque cursor from the previous page's `nextCursor`. Never construct one yourself."
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrandPartnershipPage"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "operationId": "createBrandPartnership",
+        "summary": "Record a brand partnership",
+        "tags": [
+          "Creators"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "brandName": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 80
+                  },
+                  "brandUrl": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "maxLength": 300,
+                        "format": "uri"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "type": {
+                    "$ref": "#/components/schemas/SponsorshipType"
+                  },
+                  "startedOn": {
+                    "anyOf": [
+                      {
+                        "$ref": "#/components/schemas/IsoDate"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "endedOn": {
+                    "anyOf": [
+                      {
+                        "$ref": "#/components/schemas/IsoDate"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "brandName",
+                  "type"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BrandPartnership"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/me/creator/partnerships/{id}": {
+      "delete": {
+        "operationId": "deleteBrandPartnership",
+        "summary": "Delete a brand partnership (existing disclosures keep their brand name)",
+        "tags": [
+          "Creators"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "$ref": "#/components/schemas/Id"
+            },
+            "in": "path",
+            "name": "id",
+            "required": true
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No content."
+          },
+          "401": {
             "description": "Default Response",
             "content": {
               "application/json": {

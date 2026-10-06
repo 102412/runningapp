@@ -275,6 +275,42 @@ export class MediaService {
     }
   }
 
+  /**
+   * Deletes media rows owned by `ownerId` and queues removal of every stored object. Callers must
+   * already have detached the media from posts (the FK refuses otherwise). Used when a post is deleted.
+   */
+  async deleteRows(db: Db, ownerId: string, ids: readonly string[]): Promise<void> {
+    if (ids.length === 0) return;
+    const rows = await db
+      .selectFrom('mediaAssets')
+      .select(['id', 'storageKey'])
+      .where('id', 'in', [...ids])
+      .where('ownerId', '=', ownerId)
+      .execute();
+    if (rows.length === 0) return;
+    const variants = await db
+      .selectFrom('mediaVariants')
+      .select('storageKey')
+      .where(
+        'mediaId',
+        'in',
+        rows.map((r) => r.id),
+      )
+      .execute();
+    await db
+      .deleteFrom('mediaAssets')
+      .where(
+        'id',
+        'in',
+        rows.map((r) => r.id),
+      )
+      .execute();
+    const keys = [...rows.map((r) => r.storageKey), ...variants.map((v) => v.storageKey)];
+    for (let i = 0; i < keys.length; i += 500) {
+      await this.jobs.enqueue(MediaDeleteObjectsJob, { keys: keys.slice(i, i + 500) }, { db });
+    }
+  }
+
   // ------------------------------------------------------------------ reads
 
   async getOwned(ownerId: string, id: string): Promise<MediaView> {

@@ -165,11 +165,7 @@ export async function localStorageRoutes(app: FastifyInstance, s: Services): Pro
           contentType: req.headers['content-type'],
           contentLength,
         });
-        await storage.writeStream(
-          req.query.key,
-          req.body as Readable,
-          contentLength as number,
-        );
+        await storage.writeStream(req.query.key, req.body as Readable, contentLength as number);
       } catch (err) {
         if (err instanceof StorageSignatureError)
           throw new AppError('FORBIDDEN', { message: 'Upload rejected.' });
@@ -215,11 +211,9 @@ export async function localStorageRoutes(app: FastifyInstance, s: Services): Pro
       const range = parseRange(req.headers.range, info.sizeBytes);
       if (range === 'INVALID') {
         void reply.header('content-range', `bytes */${info.sizeBytes}`);
-        return reply
-          .status(416)
-          .send({
-            error: { code: 'BAD_REQUEST', message: 'Range not satisfiable.', requestId: req.id },
-          });
+        return reply.status(416).send({
+          error: { code: 'BAD_REQUEST', message: 'Range not satisfiable.', requestId: req.id },
+        });
       }
       const file = await storage.openForRead(key, range ?? undefined);
       void reply.header('content-type', file.contentType);

@@ -15,11 +15,14 @@ export interface ContentModerator {
   moderateImage(input: { filePath: string; ownerId: string }): Promise<ModerationVerdict>;
 }
 
+export type TextModerationInput = Parameters<ContentModerator['moderateText']>[0];
+export type ImageModerationInput = Parameters<ContentModerator['moderateImage']>[0];
+
 export class AllowAllModerator implements ContentModerator {
-  async moderateText(): Promise<ModerationVerdict> {
+  async moderateText(_input: TextModerationInput): Promise<ModerationVerdict> {
     return { verdict: 'ALLOW' };
   }
-  async moderateImage(): Promise<ModerationVerdict> {
+  async moderateImage(_input: ImageModerationInput): Promise<ModerationVerdict> {
     return { verdict: 'ALLOW' };
   }
 }

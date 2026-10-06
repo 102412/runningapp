@@ -718,10 +718,27 @@ export class ActivityService {
     return route;
   }
 
+  /** Throws ACTIVITY_NOT_FOUND unless `userId` owns the activity (someone else's is "not found"). */
+  async assertOwned(userId: string, id: string, db: Db = this.db): Promise<void> {
+    const row = await db
+      .selectFrom('activities')
+      .select('id')
+      .where('id', '=', id)
+      .where('userId', '=', userId)
+      .executeTakeFirst();
+    if (!row) throw new AppError('ACTIVITY_NOT_FOUND');
+  }
+
   // ------------------------------------------------------------------ update / delete
 
-  async update(userId: string, id: string, patch: UpdateActivityRequest): Promise<Activity> {
-    const existing = await this.db
+  /** Applies an edit using `db` (pass a transaction to compose). Read the result AFTER it commits. */
+  async update(
+    userId: string,
+    id: string,
+    patch: UpdateActivityRequest,
+    db: Db = this.db,
+  ): Promise<void> {
+    const existing = await db
       .selectFrom('activities')
       .select(['id'])
       .where('id', '=', id)
@@ -729,7 +746,7 @@ export class ActivityService {
       .executeTakeFirst();
     if (!existing) throw new AppError('ACTIVITY_NOT_FOUND'); // not yours == not found
     if (patch.visibility !== undefined)
-      await this.agePolicy.assertVisibilityAllowed(userId, patch.visibility);
+      await this.agePolicy.assertVisibilityAllowed(userId, patch.visibility, db);
 
     const set: Record<string, unknown> = {};
     for (const key of [
@@ -744,14 +761,13 @@ export class ActivityService {
       if (patch[key] !== undefined) set[key] = patch[key];
     }
     if (Object.keys(set).length > 0) {
-      await this.db
+      await db
         .updateTable('activities')
         .set(set)
         .where('id', '=', id)
         .where('userId', '=', userId)
         .execute();
     }
-    return this.get(userId, id);
   }
 
   async delete(userId: string, id: string, db: Db = this.db): Promise<void> {

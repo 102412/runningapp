@@ -15,6 +15,8 @@ export type CommentPermission = "EVERYONE" | "FOLLOWERS" | "NOBODY";
 
 export type ContentVisibility = "FOLLOWERS" | "PRIVATE" | "PUBLIC";
 
+export type CreatorCategory = "BRAND" | "CLUB_OR_TEAM" | "COACH" | "CONTENT_CREATOR" | "PROFESSIONAL_ATHLETE";
+
 export type DevicePlatform = "ANDROID" | "IOS" | "WEB";
 
 export type Generated<T> = T extends ColumnType<infer S, infer I, infer U>
@@ -49,19 +51,33 @@ export type MediaStatus = "FAILED" | "PENDING_UPLOAD" | "PROCESSING" | "READY" |
 
 export type MediaVariantKind = "IMAGE_LARGE" | "IMAGE_MEDIUM" | "IMAGE_THUMB" | "POSTER" | "POSTER_THUMB" | "VIDEO_MP4_HIGH" | "VIDEO_MP4_LOW";
 
+export type ModerationStatus = "CLEAN" | "HIDDEN" | "REMOVED";
+
 export type NotificationType = "COMMENT_REACTION" | "COMMENT_REPLY" | "FOLLOW_ACCEPTED" | "FOLLOW_REQUEST" | "MENTION_COMMENT" | "MENTION_POST" | "MODERATION_ACTION" | "NEW_FOLLOWER" | "POST_COMMENT" | "POST_PUBLISH_FAILED" | "POST_PUBLISHED" | "POST_REACTION";
 
 export type OauthProvider = "APPLE" | "GOOGLE";
 
+export type PostFormat = "ACTIVITY" | "PHOTO" | "TEXT" | "VIDEO";
+
+export type PostOrigin = "ACTIVITY_AUTO" | "AUTHORED";
+
+export type PostStatus = "DRAFT" | "PENDING_MEDIA" | "PUBLISH_FAILED" | "PUBLISHED";
+
 export type PushProvider = "APNS" | "EXPO" | "FCM";
+
+export type ReactionType = "CLAP" | "FIRE" | "LIKE" | "STRONG";
 
 export type RecordType = "BIGGEST_CLIMB" | "FASTEST_10K" | "FASTEST_5K" | "FASTEST_HALF_MARATHON" | "FASTEST_MARATHON" | "LONGEST_DISTANCE" | "LONGEST_DURATION";
 
 export type RoutePrivacy = "APPROXIMATE" | "FULL" | "HIDDEN" | "TRIMMED";
 
+export type ShareChannel = "COPY_LINK" | "EXTERNAL_APP" | "SYSTEM_SHARE";
+
 export type SpeedDisplay = "NONE" | "PACE_PER_100M" | "PACE_PER_500M" | "PACE_PER_DISTANCE" | "SPEED";
 
 export type SplitType = "INTERVAL" | "KM" | "LAP" | "MILE";
+
+export type SponsorshipType = "AFFILIATE" | "AMBASSADOR" | "GIFTED_PRODUCT" | "PAID_PARTNERSHIP";
 
 export type SportCategory = "ENDURANCE" | "GENERAL" | "STRENGTH";
 
@@ -74,6 +90,8 @@ export type UnitSystem = "IMPERIAL" | "METRIC";
 export type UserRole = "ADMIN" | "MODERATOR" | "USER";
 
 export type UserStatus = "ACTIVE" | "PENDING_DELETION" | "SUSPENDED";
+
+export type VerificationStatus = "NONE" | "PENDING" | "VERIFIED";
 
 export interface Activities {
   caloriesKcal: number | null;
@@ -159,6 +177,61 @@ export interface Blocks {
   blockedId: string;
   blockerId: string;
   createdAt: Generated<Timestamp>;
+}
+
+export interface Bookmarks {
+  createdAt: Generated<Timestamp>;
+  postId: string;
+  userId: string;
+}
+
+export interface BrandPartnerships {
+  brandName: string;
+  brandUrl: string | null;
+  createdAt: Generated<Timestamp>;
+  creatorUserId: string;
+  endedOn: string | null;
+  id: Generated<string>;
+  startedOn: string | null;
+  type: SponsorshipType;
+}
+
+export interface CommentMentions {
+  commentId: string;
+  userId: string;
+}
+
+export interface CommentReactions {
+  commentId: string;
+  createdAt: Generated<Timestamp>;
+  userId: string;
+}
+
+export interface Comments {
+  authorId: string;
+  body: string;
+  createdAt: Generated<Timestamp>;
+  deletedAt: Timestamp | null;
+  id: Generated<string>;
+  moderationStatus: Generated<ModerationStatus>;
+  parentId: string | null;
+  postId: string;
+  reactionCount: Generated<number>;
+  replyCount: Generated<number>;
+  replyToUserId: string | null;
+}
+
+export interface CreatorProfiles {
+  category: CreatorCategory;
+  contactEmail: string | null;
+  createdAt: Generated<Timestamp>;
+  tagline: string | null;
+  updatedAt: Generated<Timestamp>;
+  userId: string;
+  verificationStatus: Generated<VerificationStatus>;
+  verifiedAt: Timestamp | null;
+  verifiedBy: string | null;
+  websiteUrl: string | null;
 }
 
 export interface Devices {
@@ -321,6 +394,55 @@ export interface OauthIdentities {
   userId: string;
 }
 
+export interface PostMedia {
+  createdAt: Generated<Timestamp>;
+  mediaId: string;
+  ownerId: string;
+  position: number;
+  postId: string;
+}
+
+export interface PostMentions {
+  postId: string;
+  userId: string;
+}
+
+export interface PostReactions {
+  createdAt: Generated<Timestamp>;
+  postId: string;
+  reaction: Generated<ReactionType>;
+  userId: string;
+}
+
+export interface Posts {
+  activityId: string | null;
+  authorId: string;
+  bookmarkCount: Generated<number>;
+  caption: Generated<string>;
+  commentCount: Generated<number>;
+  commentPermission: Generated<CommentPermission>;
+  createdAt: Generated<Timestamp>;
+  deletedAt: Timestamp | null;
+  format: PostFormat;
+  id: Generated<string>;
+  mediaCount: Generated<number>;
+  moderationStatus: Generated<ModerationStatus>;
+  origin: Generated<PostOrigin>;
+  publishedAt: Timestamp | null;
+  reactionCount: Generated<number>;
+  searchTsv: Generated<string | null>;
+  shareCount: Generated<number>;
+  status: Generated<PostStatus>;
+  updatedAt: Generated<Timestamp>;
+  visibility: ContentVisibility;
+}
+
+export interface PostTopics {
+  postId: string;
+  source: string;
+  topicId: string;
+}
+
 export interface PrivacyZones {
   centerLat: number;
   centerLon: number;
@@ -372,6 +494,22 @@ export interface Sessions {
   userId: string;
 }
 
+export interface Shares {
+  channel: ShareChannel;
+  createdAt: Generated<Timestamp>;
+  id: Generated<string>;
+  postId: string;
+  userId: string;
+}
+
+export interface SponsorshipDisclosures {
+  brandName: string;
+  createdAt: Generated<Timestamp>;
+  partnershipId: string | null;
+  postId: string;
+  type: SponsorshipType;
+}
+
 export interface SportPreferences {
   createdAt: Generated<Timestamp>;
   relation: SportRelation;
@@ -393,6 +531,12 @@ export interface Sports {
   supportsPower: boolean;
   supportsRoute: boolean;
   supportsSplits: boolean;
+}
+
+export interface Topics {
+  createdAt: Generated<Timestamp>;
+  id: Generated<string>;
+  slug: string;
 }
 
 export interface Users {
@@ -447,6 +591,12 @@ export interface DB {
   activitySplits: ActivitySplits;
   authTokens: AuthTokens;
   blocks: Blocks;
+  bookmarks: Bookmarks;
+  brandPartnerships: BrandPartnerships;
+  commentMentions: CommentMentions;
+  commentReactions: CommentReactions;
+  comments: Comments;
+  creatorProfiles: CreatorProfiles;
   devices: Devices;
   devMailOutbox: DevMailOutbox;
   followRequests: FollowRequests;
@@ -461,12 +611,20 @@ export interface DB {
   notificationPreferences: NotificationPreferences;
   notifications: Notifications;
   oauthIdentities: OauthIdentities;
+  postMedia: PostMedia;
+  postMentions: PostMentions;
+  postReactions: PostReactions;
+  posts: Posts;
+  postTopics: PostTopics;
   privacyZones: PrivacyZones;
   profiles: Profiles;
   refreshTokens: RefreshTokens;
   sessions: Sessions;
+  shares: Shares;
+  sponsorshipDisclosures: SponsorshipDisclosures;
   sportPreferences: SportPreferences;
   sports: Sports;
+  topics: Topics;
   users: Users;
   userSettings: UserSettings;
   videoAssets: VideoAssets;

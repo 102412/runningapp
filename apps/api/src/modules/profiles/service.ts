@@ -13,6 +13,7 @@ import { AppError } from '../../platform/errors';
 import { loadRelations } from '../social/relations';
 import type { SocialService } from '../social/service';
 import { accountVisibleTo } from '../social/visibility';
+import type { CreatorService } from '../creators/service';
 import type { MediaService } from '../media/service';
 import { ageOn } from '../users/age';
 import type { UserDirectory } from '../users/directory';
@@ -30,6 +31,7 @@ export class ProfileService {
     private readonly directory: UserDirectory,
     private readonly social: SocialService,
     private readonly media: MediaService,
+    private readonly creators: CreatorService,
   ) {}
 
   // ------------------------------------------------------------------ reads
@@ -97,9 +99,10 @@ export class ProfileService {
     const row = await q.executeTakeFirst();
     if (!row) throw new AppError('USER_NOT_FOUND');
 
-    const [summaries, relations] = await Promise.all([
+    const [summaries, relations, creatorProfile] = await Promise.all([
       this.directory.summaries([row.userId]),
       loadRelations(this.db, viewerId, [row.userId]),
+      this.creators.get(row.userId),
     ]);
     const summary = summaries.get(row.userId);
     if (!summary) throw new AppError('USER_NOT_FOUND');
@@ -110,7 +113,7 @@ export class ProfileService {
       primarySport: row.primarySportKey as Profile['primarySport'],
       counts: { followers: row.followerCount, following: row.followingCount, posts: row.postCount },
       viewer: viewerId === null ? null : (relations.get(row.userId) ?? null),
-      creatorProfile: null,
+      creatorProfile,
       createdAt: row.createdAt.toISOString(),
     };
   }

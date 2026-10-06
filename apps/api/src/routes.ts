@@ -1,5 +1,7 @@
 import type { FastifyInstance } from 'fastify';
 import { activityRoutes } from './modules/activities/routes';
+import { creatorRoutes } from './modules/creators/routes';
+import { postRoutes } from './modules/posts/routes';
 import { authRoutes } from './modules/auth/routes';
 import { devRoutes } from './modules/dev/routes';
 import { localStorageRoutes, mediaRoutes } from './modules/media/routes';
@@ -16,6 +18,8 @@ export async function registerModules(app: FastifyInstance, services: Services):
   await app.register(async (scope) => sportRoutes(scope, services));
   await app.register(async (scope) => activityRoutes(scope, services));
   await app.register(async (scope) => mediaRoutes(scope, services));
+  await app.register(async (scope) => postRoutes(scope, services));
+  await app.register(async (scope) => creatorRoutes(scope, services));
   await app.register(async (scope) => localStorageRoutes(scope, services));
   if (services.platform.config.DEV_ENDPOINTS_ENABLED) {
     await app.register(async (scope) => devRoutes(scope, services));

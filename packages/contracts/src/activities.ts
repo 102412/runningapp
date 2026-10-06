@@ -234,6 +234,14 @@ export const ActivitySchema = z
   .meta({ id: 'Activity' });
 export type Activity = z.infer<typeof ActivitySchema>;
 
+/** Returned when logging/importing: the activity plus the feed post generated for it (if any). */
+export const LoggedActivitySchema = ActivitySchema.extend({
+  postId: IdSchema.nullable().describe(
+    'The auto-generated feed post for this activity. Null when none was created (createPost=false, PRIVATE activity, or unverified email).',
+  ),
+}).meta({ id: 'LoggedActivity' });
+export type LoggedActivity = z.infer<typeof LoggedActivitySchema>;
+
 export const ActivityPageSchema = paginated(ActivitySchema, 'ActivityPage');
 
 const IanaTimezone = z.string().min(1).max(64);

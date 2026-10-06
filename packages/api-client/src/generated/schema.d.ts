@@ -851,6 +851,216 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/posts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Share something (the SHOW step): caption, activity, photos/videos, sponsorship
+         * @description At least one of caption / activityId / mediaIds is required. If attached media is still processing the post is `PENDING_MEDIA` (visible only to you) and publishes itself when every item is READY (or becomes `PUBLISH_FAILED` if one fails). Sponsored content MUST include `sponsorship`. Send an `Idempotency-Key` header to make retries safe.
+         */
+        post: operations["createPost"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/posts/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * One post as seen by the caller
+         * @description Anonymous access works for PUBLIC posts of PUBLIC accounts (e.g. shared links). Hidden, deleted, private and blocked content all answer `POST_NOT_FOUND`.
+         */
+        get: operations["getPost"];
+        put?: never;
+        post?: never;
+        /** Delete a post (and its media). It disappears for everyone immediately. */
+        delete: operations["deletePost"];
+        options?: never;
+        head?: never;
+        /** Edit caption, audience, comment permission, topics or sponsorship */
+        patch: operations["updatePost"];
+        trace?: never;
+    };
+    "/v1/posts/{id}/publish": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Publish a DRAFT or retry a PUBLISH_FAILED post
+         * @description Idempotent. Fails with `MEDIA_REJECTED` while a failed/rejected media item is still attached: detach it first.
+         */
+        post: operations["publishPost"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/posts/{id}/media": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Add media to an existing post (e.g. add a video to an activity post)
+         * @description The DO -> LOG -> SHOW prompt: after an activity is logged, upload a video and attach it to the activity's post. Items still processing stay hidden from other people until READY; the post itself stays published.
+         */
+        post: operations["attachPostMedia"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/posts/{id}/media/{mediaId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Remove one media item from a post (it stays in your media library) */
+        delete: operations["detachPostMedia"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/me/posts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Your own posts in every state (drafts, pending media, failed, moderated) */
+        get: operations["listMyPosts"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/users/{userId}/posts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * A user's published posts the caller may see (profile grid), newest first
+         * @description Private accounts answer `ACCOUNT_PRIVATE` to non-followers. Blocked users answer `USER_NOT_FOUND`.
+         */
+        get: operations["listUserPosts"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/me/creator": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Your creator/professional profile, if you have one */
+        get: operations["getMyCreatorProfile"];
+        /**
+         * Become (or update) a creator: athlete, coach, brand, club...
+         * @description Verification cannot be self-granted: use POST /me/creator/verification-request and staff decide.
+         */
+        put: operations["upsertCreatorProfile"];
+        post?: never;
+        /** Remove your creator profile */
+        delete: operations["deleteCreatorProfile"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/me/creator/verification-request": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Ask staff to verify your creator account */
+        post: operations["requestCreatorVerification"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/me/creator/partnerships": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Your brand partnerships (reference them from sponsored posts) */
+        get: operations["listBrandPartnerships"];
+        put?: never;
+        /** Record a brand partnership */
+        post: operations["createBrandPartnership"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/me/creator/partnerships/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Delete a brand partnership (existing disclosures keep their brand name) */
+        delete: operations["deleteBrandPartnership"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/storage/upload": {
         parameters: {
             query?: never;
@@ -1004,6 +1214,20 @@ export interface components {
             /** @description Pass as `cursor` to fetch the next page; null when there are no more items. */
             nextCursor: string | null;
         };
+        BrandPartnership: {
+            id: components["schemas"]["Id"];
+            brandName: string;
+            brandUrl: string | null;
+            type: components["schemas"]["SponsorshipType"];
+            startedOn: components["schemas"]["IsoDate"] | null;
+            endedOn: components["schemas"]["IsoDate"] | null;
+            createdAt: components["schemas"]["IsoDateTime"];
+        };
+        BrandPartnershipPage: {
+            items: components["schemas"]["BrandPartnership"][];
+            /** @description Pass as `cursor` to fetch the next page; null when there are no more items. */
+            nextCursor: string | null;
+        };
         /** @enum {string} */
         CommentPermission: "EVERYONE" | "FOLLOWERS" | "NOBODY";
         /** @enum {string} */
@@ -1063,7 +1287,7 @@ export interface components {
         /** @enum {string} */
         DevicePlatform: "IOS" | "ANDROID" | "WEB";
         /** @enum {string} */
-        ErrorCode: "BAD_REQUEST" | "MALFORMED_JSON" | "INVALID_CURSOR" | "UNAUTHENTICATED" | "TOKEN_INVALID" | "TOKEN_EXPIRED" | "SESSION_REVOKED" | "INVALID_CREDENTIALS" | "REFRESH_TOKEN_INVALID" | "REFRESH_TOKEN_REUSED" | "FORBIDDEN" | "INSUFFICIENT_ROLE" | "ACCOUNT_SUSPENDED" | "ACCOUNT_PENDING_DELETION" | "EMAIL_NOT_VERIFIED" | "ACCOUNT_PRIVATE" | "COMMENTS_RESTRICTED" | "PUBLIC_ACCOUNT_NOT_ALLOWED" | "UNDER_MINIMUM_AGE" | "NOT_FOUND" | "USER_NOT_FOUND" | "POST_NOT_FOUND" | "ACTIVITY_NOT_FOUND" | "COMMENT_NOT_FOUND" | "MEDIA_NOT_FOUND" | "NOTIFICATION_NOT_FOUND" | "FOLLOW_REQUEST_NOT_FOUND" | "REPORT_NOT_FOUND" | "SESSION_NOT_FOUND" | "TOPIC_NOT_FOUND" | "SPORT_NOT_FOUND" | "EMAIL_TAKEN" | "USERNAME_TAKEN" | "ALREADY_REPORTED" | "INVALID_STATE" | "MEDIA_ALREADY_ATTACHED" | "IDEMPOTENCY_KEY_REUSED" | "IDEMPOTENCY_IN_PROGRESS" | "USERNAME_CHANGE_COOLDOWN" | "TOKEN_CONSUMED_OR_EXPIRED" | "PAYLOAD_TOO_LARGE" | "UNSUPPORTED_MEDIA_TYPE" | "VALIDATION_FAILED" | "METRIC_NOT_SUPPORTED_FOR_SPORT" | "SELF_ACTION_NOT_ALLOWED" | "MEDIA_NOT_READY" | "MEDIA_REJECTED" | "UPLOAD_INCOMPLETE" | "UNSUPPORTED_FILE" | "PASSWORD_TOO_WEAK" | "PASSWORD_INCORRECT" | "RATE_LIMITED" | "INTERNAL" | "NOT_IMPLEMENTED" | "INTEGRATION_NOT_CONFIGURED" | "SERVICE_UNAVAILABLE";
+        ErrorCode: "BAD_REQUEST" | "MALFORMED_JSON" | "INVALID_CURSOR" | "UNAUTHENTICATED" | "TOKEN_INVALID" | "TOKEN_EXPIRED" | "SESSION_REVOKED" | "INVALID_CREDENTIALS" | "REFRESH_TOKEN_INVALID" | "REFRESH_TOKEN_REUSED" | "FORBIDDEN" | "INSUFFICIENT_ROLE" | "ACCOUNT_SUSPENDED" | "ACCOUNT_PENDING_DELETION" | "EMAIL_NOT_VERIFIED" | "ACCOUNT_PRIVATE" | "COMMENTS_RESTRICTED" | "PUBLIC_ACCOUNT_NOT_ALLOWED" | "UNDER_MINIMUM_AGE" | "NOT_FOUND" | "USER_NOT_FOUND" | "POST_NOT_FOUND" | "ACTIVITY_NOT_FOUND" | "COMMENT_NOT_FOUND" | "MEDIA_NOT_FOUND" | "NOTIFICATION_NOT_FOUND" | "FOLLOW_REQUEST_NOT_FOUND" | "REPORT_NOT_FOUND" | "SESSION_NOT_FOUND" | "TOPIC_NOT_FOUND" | "SPORT_NOT_FOUND" | "EMAIL_TAKEN" | "USERNAME_TAKEN" | "ALREADY_REPORTED" | "INVALID_STATE" | "MEDIA_ALREADY_ATTACHED" | "IDEMPOTENCY_KEY_REUSED" | "IDEMPOTENCY_IN_PROGRESS" | "USERNAME_CHANGE_COOLDOWN" | "TOKEN_CONSUMED_OR_EXPIRED" | "PAYLOAD_TOO_LARGE" | "UNSUPPORTED_MEDIA_TYPE" | "VALIDATION_FAILED" | "METRIC_NOT_SUPPORTED_FOR_SPORT" | "CONTENT_REJECTED" | "EMPTY_POST" | "SELF_ACTION_NOT_ALLOWED" | "MEDIA_NOT_READY" | "MEDIA_REJECTED" | "UPLOAD_INCOMPLETE" | "UNSUPPORTED_FILE" | "PASSWORD_TOO_WEAK" | "PASSWORD_INCORRECT" | "RATE_LIMITED" | "INTERNAL" | "NOT_IMPLEMENTED" | "INTEGRATION_NOT_CONFIGURED" | "SERVICE_UNAVAILABLE";
         ErrorDetail: {
             /** @description Dotted path to the offending field, e.g. "caption" or "metrics.avgHeartRateBpm". */
             path: string;
@@ -1124,6 +1348,43 @@ export interface components {
          * @description ISO-8601 timestamp.
          */
         IsoDateTime: string;
+        LoggedActivity: {
+            id: components["schemas"]["Id"];
+            user: components["schemas"]["UserSummary"];
+            sport: components["schemas"]["SportKey"];
+            subtype: string | null;
+            isRace: boolean;
+            title: string;
+            description: string;
+            startedAt: components["schemas"]["IsoDateTime"];
+            /** @description IANA zone the activity took place in. */
+            timezone: string;
+            elapsedTimeS: number;
+            movingTimeS: number | null;
+            distanceM: number | null;
+            elevationGainM: number | null;
+            elevationLossM: number | null;
+            caloriesKcal: number | null;
+            speed: components["schemas"]["DerivedSpeed"];
+            metrics: components["schemas"]["ActivityMetrics"];
+            /** @description Populated by the detail views (GET /activities/{id}, create, import); null in lists and feeds. */
+            splits: components["schemas"]["ActivitySplit"][] | null;
+            /** @description A route exists AND some of it may be shown to this viewer. */
+            hasRoute: boolean;
+            /** @description Simplified (<=120 points), privacy-filtered route for cards. Fetch /route for detail. */
+            routePreview: components["schemas"]["RouteView"] | null;
+            records: components["schemas"]["ActivityRecord"][];
+            visibility: components["schemas"]["ContentVisibility"];
+            source: components["schemas"]["ActivitySource"];
+            locationLabel: string | null;
+            /** @description Present only when the viewer owns the activity. */
+            ownerPrivacy: {
+                routePrivacy: components["schemas"]["RoutePrivacy"];
+            } | null;
+            createdAt: components["schemas"]["IsoDateTime"];
+            /** @description The auto-generated feed post for this activity. Null when none was created (createPost=false, PRIVATE activity, or unverified email). */
+            postId: components["schemas"]["Id"] | null;
+        };
         Me: {
             id: components["schemas"]["Id"];
             email: string;
@@ -1192,6 +1453,70 @@ export interface components {
             /** @description Image: <=1080px JPEG. */
             medium: string | null;
         };
+        /** @enum {string} */
+        ModerationStatus: "CLEAN" | "HIDDEN" | "REMOVED";
+        /** @description Null until you create a creator profile. */
+        MyCreator: {
+            creator: components["schemas"]["CreatorProfile"] | null;
+        };
+        Post: {
+            id: components["schemas"]["Id"];
+            author: components["schemas"]["UserSummary"];
+            /** @description ACTIVITY_AUTO: generated from a logged activity. AUTHORED: written by the user. */
+            origin: components["schemas"]["PostOrigin"];
+            /** @description Anyone other than the author only ever sees PUBLISHED. */
+            status: components["schemas"]["PostStatus"];
+            /** @description Primary layout hint: VIDEO > PHOTO > ACTIVITY > TEXT. */
+            format: components["schemas"]["PostFormat"];
+            caption: string;
+            visibility: components["schemas"]["ContentVisibility"];
+            commentPermission: components["schemas"]["CommentPermission"];
+            /** @description Lower-case topic slugs without the "#". */
+            topics: string[];
+            mentions: components["schemas"]["PostMention"][];
+            /** @description Ordered. Non-authors only receive READY media; the author also sees in-flight and failed items. */
+            media: components["schemas"]["Media"][];
+            /** @description The attached activity, with routes privacy-filtered for this viewer. */
+            activity: components["schemas"]["Activity"] | null;
+            sponsorship: components["schemas"]["Sponsorship"] | null;
+            counts: components["schemas"]["PostCounts"];
+            /** @description Null for anonymous viewers. */
+            viewer: components["schemas"]["PostViewer"] | null;
+            /** @description Author only: tells them if the post was hidden or removed. */
+            moderationStatus: components["schemas"]["ModerationStatus"] | null;
+            publishedAt: components["schemas"]["IsoDateTime"] | null;
+            createdAt: components["schemas"]["IsoDateTime"];
+        };
+        PostCounts: {
+            reactions: number;
+            comments: number;
+            shares: number;
+            /** @description Visible to the post author only. */
+            bookmarks: number | null;
+        };
+        /** @enum {string} */
+        PostFormat: "ACTIVITY" | "VIDEO" | "PHOTO" | "TEXT";
+        PostMention: {
+            id: components["schemas"]["Id"];
+            username: string;
+        };
+        /** @enum {string} */
+        PostOrigin: "AUTHORED" | "ACTIVITY_AUTO";
+        PostPage: {
+            items: components["schemas"]["Post"][];
+            /** @description Pass as `cursor` to fetch the next page; null when there are no more items. */
+            nextCursor: string | null;
+        };
+        /** @enum {string} */
+        PostStatus: "DRAFT" | "PENDING_MEDIA" | "PUBLISHED" | "PUBLISH_FAILED";
+        PostViewer: {
+            /** @description The viewer's current reaction, if any. */
+            reaction: components["schemas"]["ReactionType"] | null;
+            bookmarked: boolean;
+            isAuthor: boolean;
+            /** @description Whether the viewer may comment right now (post setting + relationship). */
+            canComment: boolean;
+        };
         /** @description Visible to the owner only. Route points inside a zone are never shown to anyone else. */
         PrivacyZone: {
             id: components["schemas"]["Id"];
@@ -1225,6 +1550,8 @@ export interface components {
             creatorProfile: components["schemas"]["CreatorProfile"] | null;
             createdAt: components["schemas"]["IsoDateTime"];
         };
+        /** @enum {string} */
+        ReactionType: "LIKE" | "CLAP" | "FIRE" | "STRONG";
         /** @enum {string} */
         RecordType: "LONGEST_DISTANCE" | "LONGEST_DURATION" | "FASTEST_5K" | "FASTEST_10K" | "FASTEST_HALF_MARATHON" | "FASTEST_MARATHON" | "BIGGEST_CLIMB";
         RefreshResponse: {
@@ -1285,6 +1612,15 @@ export interface components {
         SpeedDisplay: "PACE_PER_DISTANCE" | "SPEED" | "PACE_PER_100M" | "PACE_PER_500M" | "NONE";
         /** @enum {string} */
         SplitType: "KM" | "MILE" | "LAP" | "INTERVAL";
+        Sponsorship: {
+            type: components["schemas"]["SponsorshipType"];
+            brandName: string;
+            /** @description Ready-to-display disclosure text, e.g. "Paid partnership with Acme". */
+            label: string;
+            partnershipId: components["schemas"]["Id"] | null;
+        };
+        /** @enum {string} */
+        SponsorshipType: "PAID_PARTNERSHIP" | "GIFTED_PRODUCT" | "AFFILIATE" | "AMBASSADOR";
         Sport: {
             key: components["schemas"]["SportKey"];
             label: string;
@@ -3173,7 +3509,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["Activity"];
+                    "application/json": components["schemas"]["LoggedActivity"];
                 };
             };
             /** @description Default Response */
@@ -3187,6 +3523,15 @@ export interface operations {
             };
             /** @description Default Response */
             403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Default Response */
+            409: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -3243,7 +3588,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["Activity"];
+                    "application/json": components["schemas"]["LoggedActivity"];
                 };
             };
             /** @description Default Response */
@@ -3252,7 +3597,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["Activity"];
+                    "application/json": components["schemas"]["LoggedActivity"];
                 };
             };
             /** @description Default Response */
@@ -4046,6 +4391,892 @@ export interface operations {
             };
             /** @description Default Response */
             429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    createPost: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    caption?: string;
+                    visibility?: components["schemas"]["ContentVisibility"];
+                    commentPermission?: components["schemas"]["CommentPermission"];
+                    activityId?: components["schemas"]["Id"];
+                    /** @description Uploaded media (any state except FAILED/REJECTED). The post stays PENDING_MEDIA until all are READY, then publishes itself. */
+                    mediaIds?: components["schemas"]["Id"][];
+                    /** @description Hashtags in the caption are added automatically. */
+                    topics?: string[];
+                    /** @description Required for paid/gifted/affiliate content. */
+                    sponsorship?: {
+                        type: components["schemas"]["SponsorshipType"];
+                        brandName: string;
+                        partnershipId?: components["schemas"]["Id"];
+                    };
+                    /** @description Default true. False saves a private DRAFT. */
+                    publish?: boolean;
+                };
+            };
+        };
+        responses: {
+            /** @description Default Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Post"];
+                };
+            };
+            /** @description Default Response */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Default Response */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Default Response */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Default Response */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Default Response */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Default Response */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    getPost: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: components["schemas"]["Id"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Default Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Post"];
+                };
+            };
+            /** @description Default Response */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Default Response */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Default Response */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    deletePost: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: components["schemas"]["Id"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No content. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Default Response */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Default Response */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    updatePost: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: components["schemas"]["Id"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    caption?: string;
+                    visibility?: components["schemas"]["ContentVisibility"];
+                    commentPermission?: components["schemas"]["CommentPermission"];
+                    topics?: string[];
+                    /** @description May be added any time. Removing it is only possible while the post is unpublished. */
+                    sponsorship?: {
+                        type: components["schemas"]["SponsorshipType"];
+                        brandName: string;
+                        partnershipId?: components["schemas"]["Id"];
+                    } | null;
+                };
+            };
+        };
+        responses: {
+            /** @description Default Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Post"];
+                };
+            };
+            /** @description Default Response */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Default Response */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Default Response */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Default Response */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Default Response */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Default Response */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    publishPost: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: components["schemas"]["Id"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Default Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Post"];
+                };
+            };
+            /** @description Default Response */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Default Response */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Default Response */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Default Response */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Default Response */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    attachPostMedia: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: components["schemas"]["Id"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    mediaIds: components["schemas"]["Id"][];
+                };
+            };
+        };
+        responses: {
+            /** @description Default Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Post"];
+                };
+            };
+            /** @description Default Response */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Default Response */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Default Response */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Default Response */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Default Response */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Default Response */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    detachPostMedia: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: components["schemas"]["Id"];
+                mediaId: components["schemas"]["Id"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Default Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Post"];
+                };
+            };
+            /** @description Default Response */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Default Response */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Default Response */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    listMyPosts: {
+        parameters: {
+            query?: {
+                /** @description Page size, 1..50. */
+                limit?: number;
+                /** @description Opaque cursor from the previous page's `nextCursor`. Never construct one yourself. */
+                cursor?: string;
+                status?: components["schemas"]["PostStatus"];
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Default Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PostPage"];
+                };
+            };
+            /** @description Default Response */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Default Response */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    listUserPosts: {
+        parameters: {
+            query?: {
+                /** @description Page size, 1..50. */
+                limit?: number;
+                /** @description Opaque cursor from the previous page's `nextCursor`. Never construct one yourself. */
+                cursor?: string;
+                format?: components["schemas"]["PostFormat"];
+            };
+            header?: never;
+            path: {
+                userId: components["schemas"]["Id"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Default Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PostPage"];
+                };
+            };
+            /** @description Default Response */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Default Response */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Default Response */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Default Response */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Default Response */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    getMyCreatorProfile: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Default Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MyCreator"];
+                };
+            };
+            /** @description Default Response */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    upsertCreatorProfile: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    category: components["schemas"]["CreatorCategory"];
+                    tagline?: string | null;
+                    contactEmail?: string | null;
+                    websiteUrl?: string | null;
+                };
+            };
+        };
+        responses: {
+            /** @description Default Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CreatorProfile"];
+                };
+            };
+            /** @description Default Response */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Default Response */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Default Response */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    deleteCreatorProfile: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No content. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Default Response */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    requestCreatorVerification: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Default Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CreatorProfile"];
+                };
+            };
+            /** @description Default Response */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Default Response */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Default Response */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    listBrandPartnerships: {
+        parameters: {
+            query?: {
+                /** @description Page size, 1..50. */
+                limit?: number;
+                /** @description Opaque cursor from the previous page's `nextCursor`. Never construct one yourself. */
+                cursor?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Default Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BrandPartnershipPage"];
+                };
+            };
+            /** @description Default Response */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Default Response */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    createBrandPartnership: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    brandName: string;
+                    brandUrl?: string | null;
+                    type: components["schemas"]["SponsorshipType"];
+                    startedOn?: components["schemas"]["IsoDate"] | null;
+                    endedOn?: components["schemas"]["IsoDate"] | null;
+                };
+            };
+        };
+        responses: {
+            /** @description Default Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BrandPartnership"];
+                };
+            };
+            /** @description Default Response */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Default Response */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Default Response */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Default Response */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    deleteBrandPartnership: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: components["schemas"]["Id"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No content. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Default Response */
+            401: {
                 headers: {
                     [name: string]: unknown;
                 };

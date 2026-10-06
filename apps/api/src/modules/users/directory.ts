@@ -27,7 +27,16 @@ export class UserDirectory {
     const rows = await db
       .selectFrom('profiles as p')
       .innerJoin('users as u', 'u.id', 'p.userId')
-      .select(['p.userId', 'p.username', 'p.displayName', 'p.accountVisibility', 'p.avatarMediaId'])
+      .leftJoin('creatorProfiles as c', 'c.userId', 'p.userId')
+      .select([
+        'p.userId',
+        'p.username',
+        'p.displayName',
+        'p.accountVisibility',
+        'p.avatarMediaId',
+        'c.category as creatorCategory',
+        'c.verificationStatus as creatorVerification',
+      ])
       .where('p.userId', 'in', unique)
       .execute();
 
@@ -42,7 +51,9 @@ export class UserDirectory {
         displayName: r.displayName,
         avatar: r.avatarMediaId ? (avatars.get(r.avatarMediaId) ?? null) : null,
         isPrivate: r.accountVisibility === 'PRIVATE',
-        creator: null,
+        creator: r.creatorCategory
+          ? { category: r.creatorCategory, verified: r.creatorVerification === 'VERIFIED' }
+          : null,
       });
     }
     return out;

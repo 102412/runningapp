@@ -97,9 +97,7 @@ export function makeImage(
 }
 
 /** ffprobe JSON for a buffer (used to assert on what the pipeline produced). */
-export async function probeBuffer(
-  bytes: Buffer,
-): Promise<{
+export async function probeBuffer(bytes: Buffer): Promise<{
   format: { format_name: string; duration?: string; tags?: Record<string, string> };
   streams: Array<Record<string, unknown>>;
 }> {

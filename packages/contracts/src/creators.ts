@@ -89,3 +89,7 @@ export const SponsorshipInputSchema = z
   })
   .strict();
 export type SponsorshipInput = z.infer<typeof SponsorshipInputSchema>;
+
+export const MyCreatorSchema = z
+  .object({ creator: CreatorProfileSchema.nullable() })
+  .meta({ id: 'MyCreator', description: 'Null until you create a creator profile.' });

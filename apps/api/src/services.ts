@@ -1,4 +1,8 @@
 import { ActivityFlows } from './flows/log-activity';
+import { CreatorService } from './modules/creators/service';
+import { PostHydrator } from './modules/posts/hydrator';
+import { PostService } from './modules/posts/service';
+import { IdempotencyService } from './platform/http/idempotency';
 import { MediaService } from './modules/media/service';
 import { Ffmpeg } from './modules/media/ffmpeg';
 import { ActivityService } from './modules/activities/service';
@@ -46,6 +50,10 @@ export interface Services {
   readonly agePolicy: AgePolicy;
   readonly activities: ActivityService;
   readonly integrations: IntegrationService;
+  readonly creators: CreatorService;
+  readonly postHydrator: PostHydrator;
+  readonly posts: PostService;
+  readonly idempotency: IdempotencyService;
   readonly flows: ActivityFlows;
 }
 
@@ -99,11 +107,24 @@ export function createServices(
   const ffmpeg = new Ffmpeg(config.FFMPEG_PATH, config.FFPROBE_PATH);
   const media = new MediaService(config, db, clock, storage, jobs, ffmpeg, moderator, logger);
   directory.setAvatarResolver(media.resolveAvatars);
-  const profiles = new ProfileService(config, db, clock, directory, social, media);
+  const creators = new CreatorService(db, clock);
+  const profiles = new ProfileService(config, db, clock, directory, social, media, creators);
   const agePolicy = new AgePolicy(config, db, clock);
   const activities = new ActivityService(db, clock, sports, directory, agePolicy);
   const integrations = new IntegrationService(db);
-  const flows = new ActivityFlows(db, activities);
+  const postHydrator = new PostHydrator(db, directory, activities, media);
+  const posts = new PostService(
+    db,
+    clock,
+    activities,
+    media,
+    agePolicy,
+    moderator,
+    notifier,
+    postHydrator,
+  );
+  const idempotency = new IdempotencyService(db, clock);
+  const flows = new ActivityFlows(config, db, activities, posts);
 
   return {
     platform,
@@ -121,6 +142,10 @@ export function createServices(
     agePolicy,
     activities,
     integrations,
+    creators,
+    postHydrator,
+    posts,
+    idempotency,
     flows,
   };
 }
