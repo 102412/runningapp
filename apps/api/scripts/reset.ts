@@ -1,8 +1,9 @@
 import pg from 'pg';
-import { loadConfig } from '../src/config';
+import { loadConfig, loadDotEnv } from '../src/config';
 import { migrate } from '../src/platform/db/migrate';
 
 // Drops and recreates the public schema, then re-runs all migrations. Development only.
+loadDotEnv();
 const config = loadConfig();
 if (config.isProduction) {
   console.error('Refusing to reset the database when NODE_ENV=production.');

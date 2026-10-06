@@ -1,9 +1,10 @@
 import { spawnSync } from 'node:child_process';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { loadConfig } from '../src/config';
+import { loadConfig, loadDotEnv } from '../src/config';
 
 // Regenerates src/platform/db/generated.ts from the LIVE schema. Run after `db:migrate`.
+loadDotEnv();
 const config = loadConfig();
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const result = spawnSync(

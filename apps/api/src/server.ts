@@ -1,4 +1,4 @@
-import { loadConfig } from './config';
+import { loadConfig, loadDotEnv } from './config';
 import { buildApp } from './app';
 import { registerJobs } from './jobs';
 import { migrate } from './platform/db/migrate';
@@ -7,6 +7,7 @@ import { JobWorker } from './platform/jobs/worker';
 import { Scheduler } from './platform/jobs/scheduler';
 import { createServices } from './services';
 
+loadDotEnv();
 const config = loadConfig();
 const platform = createPlatform(config);
 const { logger } = platform;

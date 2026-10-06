@@ -1,5 +1,5 @@
 import pg from 'pg';
-import { loadConfig } from '../src/config';
+import { loadConfig, loadDotEnv } from '../src/config';
 
 /**
  * Operator tool: grants or revokes a staff role. There is deliberately NO API for this - the
@@ -24,6 +24,7 @@ if (!email || !role || !(ROLES as readonly string[]).includes(role)) {
   process.exit(2);
 }
 
+loadDotEnv();
 const config = loadConfig();
 const pool = new pg.Pool({ connectionString: config.DATABASE_URL, max: 1 });
 try {

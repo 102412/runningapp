@@ -1,7 +1,8 @@
 import pg from 'pg';
-import { loadConfig } from '../src/config';
+import { loadConfig, loadDotEnv } from '../src/config';
 import { migrate } from '../src/platform/db/migrate';
 
+loadDotEnv();
 const config = loadConfig();
 const pool = new pg.Pool({ connectionString: config.DATABASE_URL, max: 1 });
 try {

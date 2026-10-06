@@ -1,3 +1,5 @@
+import { existsSync } from 'node:fs';
+import path from 'node:path';
 import { z } from 'zod';
 
 /**
@@ -113,6 +115,16 @@ const envSchema = z.object({
   /** Comma-separated terms that make the baseline text moderator REJECT content outright. */
   MODERATION_BLOCK_TERMS: csv.default([]),
 });
+
+/**
+ * Loads `./.env` (relative to the working directory, i.e. apps/api when started through pnpm) into
+ * process.env for local development. Real environment variables always win (nothing already set is
+ * overridden), and it does nothing in production, where configuration must come from the platform.
+ */
+export function loadDotEnv(file = path.resolve(process.cwd(), '.env')): void {
+  if (process.env.NODE_ENV === 'production') return;
+  if (existsSync(file)) process.loadEnvFile(file);
+}
 
 export type Config = Readonly<z.output<typeof envSchema>> & {
   readonly isProduction: boolean;

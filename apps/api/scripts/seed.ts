@@ -4,7 +4,7 @@ import os from 'node:os';
 import path from 'node:path';
 import type { ClientEvent, CreateActivityRequest } from '@runningapp/contracts';
 import { registerJobs } from '../src/jobs';
-import { loadConfig } from '../src/config';
+import { loadConfig, loadDotEnv } from '../src/config';
 import { ManualClock } from '../src/platform/clock';
 import { createPlatform } from '../src/platform/create';
 import { JobWorker } from '../src/platform/jobs/worker';
@@ -51,6 +51,7 @@ const SEED = Number(flag('seed') ?? 20260601);
 const WITH_MEDIA = flag('no-media') === undefined;
 const FORCE = flag('force') !== undefined;
 
+loadDotEnv();
 const config = loadConfig();
 if (config.isProduction) {
   console.error('Refusing to seed demo data when NODE_ENV=production.');

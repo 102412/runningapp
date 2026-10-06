@@ -3,6 +3,7 @@ dist
 coverage
 pnpm-lock.yaml
 docs/openapi.json
+docs/API_REFERENCE.md
 packages/api-client/src/generated
 apps/api/src/platform/db/generated.ts
 .local-storage
