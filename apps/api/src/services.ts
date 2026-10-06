@@ -1,7 +1,11 @@
 import { ActivityFlows } from './flows/log-activity';
 import { CreatorService } from './modules/creators/service';
 import { EngagementService } from './modules/engagement/service';
-import { NoopEventRecorder, type EventRecorder } from './modules/events/recorder';
+import { DbEventRecorder } from './modules/events/db-recorder';
+import { EventIngestionService } from './modules/events/ingestion';
+import { FeedAnalytics } from './modules/feed/analytics';
+import { FeedService } from './modules/feed/service';
+import type { EventRecorder } from './modules/events/recorder';
 import { NotificationService } from './modules/notifications/service';
 import { PostHydrator } from './modules/posts/hydrator';
 import { PostService } from './modules/posts/service';
@@ -59,6 +63,9 @@ export interface Services {
   readonly posts: PostService;
   readonly idempotency: IdempotencyService;
   readonly events: EventRecorder;
+  readonly eventIngestion: EventIngestionService;
+  readonly feed: FeedService;
+  readonly feedAnalytics: FeedAnalytics;
   readonly engagement: EngagementService;
   readonly notifications: NotificationService;
   readonly flows: ActivityFlows;
@@ -90,7 +97,8 @@ export function createServices(
   const accessTokens = new AccessTokenService(config, clock);
   const auth = new AuthService(config, db, clock, users, accessTokens, mail, metrics);
   const sports = new SportService(db, clock);
-  const social = new SocialService(db, directory, notifier);
+  const events: EventRecorder = new DbEventRecorder(db);
+  const social = new SocialService(db, directory, notifier, events);
   const storage: ObjectStorage =
     overrides.storage ??
     (config.STORAGE_DRIVER === 's3'
@@ -132,7 +140,6 @@ export function createServices(
     postHydrator,
   );
   const idempotency = new IdempotencyService(db, clock);
-  const events: EventRecorder = new NoopEventRecorder();
   const engagement = new EngagementService(
     db,
     posts,
@@ -145,6 +152,9 @@ export function createServices(
   const push = overrides.push ?? new LoggingPushProvider(logger);
   const notifications = new NotificationService(db, directory, media, push);
   const flows = new ActivityFlows(config, db, activities, posts);
+  const eventIngestion = new EventIngestionService(db, clock);
+  const feed = new FeedService(config, db, clock, postHydrator, agePolicy, logger);
+  const feedAnalytics = new FeedAnalytics(config, db, clock, logger);
 
   return {
     platform,
@@ -167,6 +177,9 @@ export function createServices(
     posts,
     idempotency,
     events,
+    eventIngestion,
+    feed,
+    feedAnalytics,
     engagement,
     notifications,
     flows,

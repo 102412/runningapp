@@ -9,6 +9,8 @@ export type AccountVisibility = "PRIVATE" | "PUBLIC";
 
 export type ActivitySource = "APPLE_HEALTH" | "FILE_IMPORT" | "GARMIN" | "HEALTH_CONNECT" | "MANUAL" | "STRAVA";
 
+export type AffinitySubject = "CREATOR" | "FORMAT" | "SPORT" | "TOPIC";
+
 export type AuthTokenPurpose = "EMAIL_VERIFICATION" | "PASSWORD_RESET";
 
 export type CommentPermission = "EVERYONE" | "FOLLOWERS" | "NOBODY";
@@ -18,6 +20,10 @@ export type ContentVisibility = "FOLLOWERS" | "PRIVATE" | "PUBLIC";
 export type CreatorCategory = "BRAND" | "CLUB_OR_TEAM" | "COACH" | "CONTENT_CREATOR" | "PROFESSIONAL_ATHLETE";
 
 export type DevicePlatform = "ANDROID" | "IOS" | "WEB";
+
+export type FeedEventType = "ACTIVITY_OPEN" | "BOOKMARK" | "COMMENT" | "FOLLOW" | "IMPRESSION" | "LIKE" | "MEDIA_EXPAND" | "NOT_INTERESTED" | "PROFILE_OPEN" | "SHARE" | "SKIP" | "TOPIC_INTERACTION" | "UNBOOKMARK" | "UNFOLLOW" | "UNLIKE" | "VIDEO_COMPLETE" | "VIDEO_START" | "WATCH_TIME";
+
+export type FeedSurface = "EXPLORE" | "FOLLOWING" | "HOME" | "OTHER" | "POST_DETAIL" | "PROFILE" | "SEARCH" | "TOPIC";
 
 export type Generated<T> = T extends ColumnType<infer S, infer I, infer U>
   ? ColumnType<S, I | undefined, U>
@@ -163,6 +169,12 @@ export interface ActivitySplits {
   splitType: SplitType;
 }
 
+export interface AnalyticsWatermarks {
+  lastEventId: string | null;
+  name: string;
+  updatedAt: Generated<Timestamp>;
+}
+
 export interface AuthTokens {
   consumedAt: Timestamp | null;
   createdAt: Generated<Timestamp>;
@@ -257,6 +269,45 @@ export interface DevMailOutbox {
   textBody: string;
   toEmail: string;
   token: string | null;
+}
+
+export interface FeedEvents {
+  activityId: string | null;
+  clientTs: Timestamp | null;
+  createdAt: Generated<Timestamp>;
+  eventId: string;
+  eventType: FeedEventType;
+  feedRequestId: string | null;
+  id: Generated<string>;
+  origin: string;
+  position: number | null;
+  postId: string | null;
+  subjectUserId: string | null;
+  surface: FeedSurface | null;
+  topic: string | null;
+  userId: string;
+  valueMs: number | null;
+}
+
+export interface FeedRequests {
+  algorithmVersion: string;
+  createdAt: Generated<Timestamp>;
+  id: Generated<string>;
+  itemCount: number;
+  pageOffset: Generated<number>;
+  snapshotId: string | null;
+  surface: FeedSurface;
+  userId: string;
+}
+
+export interface FeedSnapshots {
+  algorithmVersion: string;
+  createdAt: Generated<Timestamp>;
+  expiresAt: Timestamp;
+  id: Generated<string>;
+  items: Json;
+  surface: FeedSurface;
+  userId: string;
 }
 
 export interface FollowRequests {
@@ -437,6 +488,17 @@ export interface Posts {
   visibility: ContentVisibility;
 }
 
+export interface PostStats {
+  impressions: Generated<number>;
+  notInterested: Generated<number>;
+  postId: string;
+  skips: Generated<number>;
+  updatedAt: Generated<Timestamp>;
+  videoCompletes: Generated<number>;
+  videoStarts: Generated<number>;
+  watchTimeMs: Generated<number>;
+}
+
 export interface PostTopics {
   postId: string;
   source: string;
@@ -469,6 +531,15 @@ export interface Profiles {
   userId: string;
   username: string;
   usernameChangedAt: Timestamp | null;
+}
+
+export interface RecommendationEvents {
+  feedRequestId: string;
+  position: number;
+  postId: string;
+  reason: string;
+  score: number | null;
+  signals: Generated<Json>;
 }
 
 export interface RefreshTokens {
@@ -539,6 +610,14 @@ export interface Topics {
   slug: string;
 }
 
+export interface UserAffinities {
+  score: number;
+  subjectKey: string;
+  subjectType: AffinitySubject;
+  updatedAt: Generated<Timestamp>;
+  userId: string;
+}
+
 export interface Users {
   birthDate: string;
   createdAt: Generated<Timestamp>;
@@ -589,6 +668,7 @@ export interface DB {
   activityRecords: ActivityRecords;
   activityRoutes: ActivityRoutes;
   activitySplits: ActivitySplits;
+  analyticsWatermarks: AnalyticsWatermarks;
   authTokens: AuthTokens;
   blocks: Blocks;
   bookmarks: Bookmarks;
@@ -599,6 +679,9 @@ export interface DB {
   creatorProfiles: CreatorProfiles;
   devices: Devices;
   devMailOutbox: DevMailOutbox;
+  feedEvents: FeedEvents;
+  feedRequests: FeedRequests;
+  feedSnapshots: FeedSnapshots;
   followRequests: FollowRequests;
   follows: Follows;
   idempotencyKeys: IdempotencyKeys;
@@ -615,9 +698,11 @@ export interface DB {
   postMentions: PostMentions;
   postReactions: PostReactions;
   posts: Posts;
+  postStats: PostStats;
   postTopics: PostTopics;
   privacyZones: PrivacyZones;
   profiles: Profiles;
+  recommendationEvents: RecommendationEvents;
   refreshTokens: RefreshTokens;
   sessions: Sessions;
   shares: Shares;
@@ -625,6 +710,7 @@ export interface DB {
   sportPreferences: SportPreferences;
   sports: Sports;
   topics: Topics;
+  userAffinities: UserAffinities;
   users: Users;
   userSettings: UserSettings;
   videoAssets: VideoAssets;

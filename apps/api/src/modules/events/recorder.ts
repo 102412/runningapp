@@ -21,9 +21,3 @@ export interface RecordedEvent {
 export interface EventRecorder {
   record(event: RecordedEvent, db?: Db): Promise<void>;
 }
-
-export class NoopEventRecorder implements EventRecorder {
-  async record(): Promise<void> {
-    /* replaced by the database recorder when analytics is wired */
-  }
-}

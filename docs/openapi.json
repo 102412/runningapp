@@ -667,6 +667,21 @@
         ],
         "additionalProperties": false
       },
+      "ClientEventType": {
+        "type": "string",
+        "enum": [
+          "IMPRESSION",
+          "VIDEO_START",
+          "VIDEO_COMPLETE",
+          "WATCH_TIME",
+          "SKIP",
+          "PROFILE_OPEN",
+          "ACTIVITY_OPEN",
+          "MEDIA_EXPAND",
+          "TOPIC_INTERACTION",
+          "NOT_INTERESTED"
+        ]
+      },
       "Comment": {
         "type": "object",
         "properties": {
@@ -1118,6 +1133,7 @@
           "IDEMPOTENCY_IN_PROGRESS",
           "USERNAME_CHANGE_COOLDOWN",
           "TOKEN_CONSUMED_OR_EXPIRED",
+          "FEED_EXPIRED",
           "PAYLOAD_TOO_LARGE",
           "UNSUPPORTED_MEDIA_TYPE",
           "VALIDATION_FAILED",
@@ -1195,6 +1211,53 @@
         ],
         "additionalProperties": false
       },
+      "EventBatchResult": {
+        "type": "object",
+        "properties": {
+          "accepted": {
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991,
+            "description": "Events stored. Includes events intentionally discarded because the user turned personalization off."
+          },
+          "duplicates": {
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991,
+            "description": "Events skipped because their `eventId` was already received."
+          },
+          "rejected": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "eventId": {
+                  "$ref": "#/components/schemas/Id"
+                },
+                "code": {
+                  "type": "string",
+                  "enum": [
+                    "POST_NOT_FOUND",
+                    "USER_NOT_FOUND"
+                  ]
+                }
+              },
+              "required": [
+                "eventId",
+                "code"
+              ],
+              "additionalProperties": false
+            },
+            "description": "Events that referenced content the user cannot see. Do not retry these."
+          }
+        },
+        "required": [
+          "accepted",
+          "duplicates",
+          "rejected"
+        ],
+        "additionalProperties": false
+      },
       "EventContext": {
         "type": "object",
         "properties": {
@@ -1212,6 +1275,74 @@
             "maximum": 10000
           }
         }
+      },
+      "FeedItem": {
+        "type": "object",
+        "properties": {
+          "post": {
+            "$ref": "#/components/schemas/Post"
+          },
+          "reason": {
+            "description": "Why this item is here. Show it as a hint (\"Because you follow...\") or ignore it.",
+            "$ref": "#/components/schemas/FeedItemReason"
+          },
+          "position": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9007199254740991,
+            "description": "Zero-based index within THIS page. Echo it (with the page `requestId`) in events and engagement `context`."
+          }
+        },
+        "required": [
+          "post",
+          "reason",
+          "position"
+        ],
+        "additionalProperties": false
+      },
+      "FeedItemReason": {
+        "type": "string",
+        "enum": [
+          "OWN_POST",
+          "FOLLOWED_AUTHOR",
+          "SPORT_INTEREST",
+          "CREATOR_AFFINITY",
+          "TRENDING",
+          "DISCOVERY"
+        ]
+      },
+      "FeedPage": {
+        "type": "object",
+        "properties": {
+          "requestId": {
+            "description": "Identifies this served page. Send it back as `feedRequestId` in events and engagement context.",
+            "$ref": "#/components/schemas/Id"
+          },
+          "algorithmVersion": {
+            "type": "string",
+            "description": "e.g. \"chrono-v1\", \"ranked-v1\", \"explore-v1\"."
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FeedItem"
+            }
+          },
+          "nextCursor": {
+            "description": "Pass as `cursor` for the next page; null at the end. A page can hold fewer than `limit` items (content may have become invisible since the feed was built). On `FEED_EXPIRED` (410) refetch without a cursor.",
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "requestId",
+          "algorithmVersion",
+          "items",
+          "nextCursor"
+        ],
+        "additionalProperties": false
       },
       "FeedSurface": {
         "type": "string",
@@ -10285,6 +10416,408 @@
             "description": "No content."
           },
           "401": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/feed/following": {
+      "get": {
+        "operationId": "getFollowingFeed",
+        "summary": "Chronological feed: posts from people you follow, plus your own",
+        "tags": [
+          "Feed"
+        ],
+        "description": "Unranked, newest first, infinite. Keyset pagination: new posts never shift or repeat earlier pages.",
+        "parameters": [
+          {
+            "schema": {
+              "default": 20,
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 50
+            },
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "description": "Page size, 1..50."
+          },
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 2048
+            },
+            "in": "query",
+            "name": "cursor",
+            "required": false,
+            "description": "Opaque cursor from the previous page's `nextCursor`. Never construct one yourself."
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FeedPage"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/feed/home": {
+      "get": {
+        "operationId": "getHomeFeed",
+        "summary": "Ranked home feed: people you follow, mixed with discovery",
+        "tags": [
+          "Feed"
+        ],
+        "description": "A finite ranked list frozen at refresh (omit `cursor` to refresh). Pages walk that list exactly once. Expired cursors answer `FEED_EXPIRED` (410): refresh from the top. Sponsored posts always carry `sponsorship` — render its `label`.",
+        "parameters": [
+          {
+            "schema": {
+              "default": 20,
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 50
+            },
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "description": "Page size, 1..50."
+          },
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 2048
+            },
+            "in": "query",
+            "name": "cursor",
+            "required": false,
+            "description": "Opaque cursor from the previous page's `nextCursor`. Never construct one yourself."
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FeedPage"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "410": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/feed/explore": {
+      "get": {
+        "operationId": "getExploreFeed",
+        "summary": "Discovery feed: public posts from people you do not follow",
+        "tags": [
+          "Feed"
+        ],
+        "description": "Same snapshot paging as the home feed. Only posts from discoverable authors that you may see; blocked users and posts you marked \"not interested\" never appear.",
+        "parameters": [
+          {
+            "schema": {
+              "default": 20,
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 50
+            },
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "description": "Page size, 1..50."
+          },
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 2048
+            },
+            "in": "query",
+            "name": "cursor",
+            "required": false,
+            "description": "Opaque cursor from the previous page's `nextCursor`. Never construct one yourself."
+          }
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FeedPage"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "410": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/events": {
+      "post": {
+        "operationId": "recordEvents",
+        "summary": "Report what the user saw and did (impressions, watch time, \"not interested\"...)",
+        "tags": [
+          "Events"
+        ],
+        "description": "Send events in batches (up to 100) every few seconds or when the app backgrounds. Idempotent per `eventId`. Likes, comments, shares, bookmarks and follows are recorded by their own endpoints. Events about content the user cannot see are returned in `rejected`.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "events": {
+                    "minItems": 1,
+                    "maxItems": 100,
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "eventId": {
+                          "$ref": "#/components/schemas/Id"
+                        },
+                        "type": {
+                          "$ref": "#/components/schemas/ClientEventType"
+                        },
+                        "postId": {
+                          "$ref": "#/components/schemas/Id"
+                        },
+                        "subjectUserId": {
+                          "$ref": "#/components/schemas/Id"
+                        },
+                        "topic": {
+                          "description": "Required for TOPIC_INTERACTION.",
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 50
+                        },
+                        "surface": {
+                          "$ref": "#/components/schemas/FeedSurface"
+                        },
+                        "feedRequestId": {
+                          "$ref": "#/components/schemas/Id"
+                        },
+                        "position": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 10000
+                        },
+                        "valueMs": {
+                          "description": "Required for WATCH_TIME: milliseconds watched.",
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 86400000
+                        },
+                        "clientTs": {
+                          "$ref": "#/components/schemas/IsoDateTime"
+                        }
+                      },
+                      "required": [
+                        "eventId",
+                        "type"
+                      ],
+                      "additionalProperties": false
+                    }
+                  }
+                },
+                "required": [
+                  "events"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EventBatchResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "429": {
             "description": "Default Response",
             "content": {
               "application/json": {

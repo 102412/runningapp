@@ -5,6 +5,7 @@ import { isBlockedPairViolation } from '../../platform/db/errors';
 import { keysetBefore, timestampText } from '../../platform/db/keyset';
 import { AppError } from '../../platform/errors';
 import { decodeCursor, encodeCursor, sliceProbe } from '../../platform/http/cursor';
+import type { EventRecorder } from '../events/recorder';
 import type { Notifier } from '../notifier';
 import type { UserDirectory } from '../users/directory';
 import { accountVisibleTo } from './visibility';
@@ -27,6 +28,7 @@ export class SocialService {
     private readonly db: Db,
     private readonly directory: UserDirectory,
     private readonly notifier: Notifier,
+    private readonly events: EventRecorder,
   ) {}
 
   // ------------------------------------------------------------------ follow / unfollow
@@ -70,6 +72,10 @@ export class SocialService {
             .where('targetId', '=', targetId)
             .execute();
           if (inserted) {
+            await this.events.record(
+              { userId: viewerId, type: 'FOLLOW', subjectUserId: targetId },
+              trx,
+            );
             await this.notifier.retract(
               { recipientId: targetId, dedupeKey: `follow_request:${viewerId}` },
               trx,
@@ -115,11 +121,17 @@ export class SocialService {
   /** Unfollows, or withdraws a pending request. Idempotent and existence-agnostic. */
   async unfollow(viewerId: string, targetId: string): Promise<void> {
     await this.db.transaction().execute(async (trx) => {
-      await trx
+      const removed = await trx
         .deleteFrom('follows')
         .where('followerId', '=', viewerId)
         .where('followeeId', '=', targetId)
-        .execute();
+        .executeTakeFirst();
+      if (Number(removed.numDeletedRows) > 0) {
+        await this.events.record(
+          { userId: viewerId, type: 'UNFOLLOW', subjectUserId: targetId },
+          trx,
+        );
+      }
       await trx
         .deleteFrom('followRequests')
         .where('requesterId', '=', viewerId)
@@ -226,6 +238,10 @@ export class SocialService {
       db,
     );
     if (inserted) {
+      await this.events.record(
+        { userId: requesterId, type: 'FOLLOW', subjectUserId: targetId },
+        db,
+      );
       await this.notifier.notify(
         {
           recipientId: requesterId,

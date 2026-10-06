@@ -12,3 +12,5 @@ export * from './media';
 export * from './posts';
 export * from './engagement';
 export * from './notifications';
+export * from './feed';
+export * from './events';

@@ -3,7 +3,12 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { createTestApp, type TestApp } from './helpers/app';
 
 /** Enums that exist only inside the database/server and are intentionally not in the contract. */
-const INTERNAL_DB_ENUMS = new Set(['job_status', 'auth_token_purpose', 'oauth_provider']);
+const INTERNAL_DB_ENUMS = new Set([
+  'job_status',
+  'auth_token_purpose',
+  'oauth_provider',
+  'affinity_subject',
+]);
 
 describe('contract <-> database parity', () => {
   let t: TestApp;

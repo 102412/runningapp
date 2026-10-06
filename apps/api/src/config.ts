@@ -100,6 +100,12 @@ const envSchema = z.object({
   WORKER_CONCURRENCY: z.coerce.number().int().min(1).max(32).default(4),
   /** Fraction of served feed items persisted to the recommendation log (0..1). */
   RANKING_LOG_SAMPLE_RATE: z.coerce.number().min(0).max(1).default(1),
+  /** How long a ranked feed snapshot (Home/Explore pagination state) stays valid. */
+  FEED_SNAPSHOT_TTL_MINUTES: z.coerce.number().int().min(1).max(1440).default(30),
+  /** Maximum items in one Home/Explore refresh (the feed is finite per refresh). */
+  FEED_SNAPSHOT_SIZE: z.coerce.number().int().min(10).max(500).default(100),
+  /** Raw behavioural events and the serving log are deleted after this many days. */
+  ANALYTICS_RETENTION_DAYS: z.coerce.number().int().min(7).max(1095).default(180),
   /** Comma-separated terms that make the baseline text moderator FLAG content. */
   MODERATION_FLAG_TERMS: csv.default([]),
 });

@@ -1326,6 +1326,86 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/feed/following": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Chronological feed: posts from people you follow, plus your own
+         * @description Unranked, newest first, infinite. Keyset pagination: new posts never shift or repeat earlier pages.
+         */
+        get: operations["getFollowingFeed"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/feed/home": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Ranked home feed: people you follow, mixed with discovery
+         * @description A finite ranked list frozen at refresh (omit `cursor` to refresh). Pages walk that list exactly once. Expired cursors answer `FEED_EXPIRED` (410): refresh from the top. Sponsored posts always carry `sponsorship` — render its `label`.
+         */
+        get: operations["getHomeFeed"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/feed/explore": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Discovery feed: public posts from people you do not follow
+         * @description Same snapshot paging as the home feed. Only posts from discoverable authors that you may see; blocked users and posts you marked "not interested" never appear.
+         */
+        get: operations["getExploreFeed"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/events": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Report what the user saw and did (impressions, watch time, "not interested"...)
+         * @description Send events in batches (up to 100) every few seconds or when the app backgrounds. Idempotent per `eventId`. Likes, comments, shares, bookmarks and follows are recorded by their own endpoints. Events about content the user cannot see are returned in `rejected`.
+         */
+        post: operations["recordEvents"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/storage/upload": {
         parameters: {
             query?: never;
@@ -1496,6 +1576,8 @@ export interface components {
             /** @description Pass as `cursor` to fetch the next page; null when there are no more items. */
             nextCursor: string | null;
         };
+        /** @enum {string} */
+        ClientEventType: "IMPRESSION" | "VIDEO_START" | "VIDEO_COMPLETE" | "WATCH_TIME" | "SKIP" | "PROFILE_OPEN" | "ACTIVITY_OPEN" | "MEDIA_EXPAND" | "TOPIC_INTERACTION" | "NOT_INTERESTED";
         Comment: {
             id: components["schemas"]["Id"];
             postId: components["schemas"]["Id"];
@@ -1588,7 +1670,7 @@ export interface components {
         /** @enum {string} */
         DevicePlatform: "IOS" | "ANDROID" | "WEB";
         /** @enum {string} */
-        ErrorCode: "BAD_REQUEST" | "MALFORMED_JSON" | "INVALID_CURSOR" | "UNAUTHENTICATED" | "TOKEN_INVALID" | "TOKEN_EXPIRED" | "SESSION_REVOKED" | "INVALID_CREDENTIALS" | "REFRESH_TOKEN_INVALID" | "REFRESH_TOKEN_REUSED" | "FORBIDDEN" | "INSUFFICIENT_ROLE" | "ACCOUNT_SUSPENDED" | "ACCOUNT_PENDING_DELETION" | "EMAIL_NOT_VERIFIED" | "ACCOUNT_PRIVATE" | "COMMENTS_RESTRICTED" | "PUBLIC_ACCOUNT_NOT_ALLOWED" | "UNDER_MINIMUM_AGE" | "NOT_FOUND" | "USER_NOT_FOUND" | "POST_NOT_FOUND" | "ACTIVITY_NOT_FOUND" | "COMMENT_NOT_FOUND" | "MEDIA_NOT_FOUND" | "NOTIFICATION_NOT_FOUND" | "FOLLOW_REQUEST_NOT_FOUND" | "REPORT_NOT_FOUND" | "SESSION_NOT_FOUND" | "TOPIC_NOT_FOUND" | "SPORT_NOT_FOUND" | "EMAIL_TAKEN" | "USERNAME_TAKEN" | "ALREADY_REPORTED" | "INVALID_STATE" | "MEDIA_ALREADY_ATTACHED" | "IDEMPOTENCY_KEY_REUSED" | "IDEMPOTENCY_IN_PROGRESS" | "USERNAME_CHANGE_COOLDOWN" | "TOKEN_CONSUMED_OR_EXPIRED" | "PAYLOAD_TOO_LARGE" | "UNSUPPORTED_MEDIA_TYPE" | "VALIDATION_FAILED" | "METRIC_NOT_SUPPORTED_FOR_SPORT" | "CONTENT_REJECTED" | "EMPTY_POST" | "SELF_ACTION_NOT_ALLOWED" | "MEDIA_NOT_READY" | "MEDIA_REJECTED" | "UPLOAD_INCOMPLETE" | "UNSUPPORTED_FILE" | "PASSWORD_TOO_WEAK" | "PASSWORD_INCORRECT" | "RATE_LIMITED" | "INTERNAL" | "NOT_IMPLEMENTED" | "INTEGRATION_NOT_CONFIGURED" | "SERVICE_UNAVAILABLE";
+        ErrorCode: "BAD_REQUEST" | "MALFORMED_JSON" | "INVALID_CURSOR" | "UNAUTHENTICATED" | "TOKEN_INVALID" | "TOKEN_EXPIRED" | "SESSION_REVOKED" | "INVALID_CREDENTIALS" | "REFRESH_TOKEN_INVALID" | "REFRESH_TOKEN_REUSED" | "FORBIDDEN" | "INSUFFICIENT_ROLE" | "ACCOUNT_SUSPENDED" | "ACCOUNT_PENDING_DELETION" | "EMAIL_NOT_VERIFIED" | "ACCOUNT_PRIVATE" | "COMMENTS_RESTRICTED" | "PUBLIC_ACCOUNT_NOT_ALLOWED" | "UNDER_MINIMUM_AGE" | "NOT_FOUND" | "USER_NOT_FOUND" | "POST_NOT_FOUND" | "ACTIVITY_NOT_FOUND" | "COMMENT_NOT_FOUND" | "MEDIA_NOT_FOUND" | "NOTIFICATION_NOT_FOUND" | "FOLLOW_REQUEST_NOT_FOUND" | "REPORT_NOT_FOUND" | "SESSION_NOT_FOUND" | "TOPIC_NOT_FOUND" | "SPORT_NOT_FOUND" | "EMAIL_TAKEN" | "USERNAME_TAKEN" | "ALREADY_REPORTED" | "INVALID_STATE" | "MEDIA_ALREADY_ATTACHED" | "IDEMPOTENCY_KEY_REUSED" | "IDEMPOTENCY_IN_PROGRESS" | "USERNAME_CHANGE_COOLDOWN" | "TOKEN_CONSUMED_OR_EXPIRED" | "FEED_EXPIRED" | "PAYLOAD_TOO_LARGE" | "UNSUPPORTED_MEDIA_TYPE" | "VALIDATION_FAILED" | "METRIC_NOT_SUPPORTED_FOR_SPORT" | "CONTENT_REJECTED" | "EMPTY_POST" | "SELF_ACTION_NOT_ALLOWED" | "MEDIA_NOT_READY" | "MEDIA_REJECTED" | "UPLOAD_INCOMPLETE" | "UNSUPPORTED_FILE" | "PASSWORD_TOO_WEAK" | "PASSWORD_INCORRECT" | "RATE_LIMITED" | "INTERNAL" | "NOT_IMPLEMENTED" | "INTEGRATION_NOT_CONFIGURED" | "SERVICE_UNAVAILABLE";
         ErrorDetail: {
             /** @description Dotted path to the offending field, e.g. "caption" or "metrics.avgHeartRateBpm". */
             path: string;
@@ -1605,12 +1687,42 @@ export interface components {
                 details?: components["schemas"]["ErrorDetail"][];
             };
         };
+        EventBatchResult: {
+            /** @description Events stored. Includes events intentionally discarded because the user turned personalization off. */
+            accepted: number;
+            /** @description Events skipped because their `eventId` was already received. */
+            duplicates: number;
+            /** @description Events that referenced content the user cannot see. Do not retry these. */
+            rejected: {
+                eventId: components["schemas"]["Id"];
+                /** @enum {string} */
+                code: "POST_NOT_FOUND" | "USER_NOT_FOUND";
+            }[];
+        };
         EventContext: {
             /** @description `requestId` from the feed response that surfaced the post. */
             feedRequestId?: components["schemas"]["Id"];
             surface?: components["schemas"]["FeedSurface"];
             /** @description Zero-based position in the feed. */
             position?: number;
+        };
+        FeedItem: {
+            post: components["schemas"]["Post"];
+            /** @description Why this item is here. Show it as a hint ("Because you follow...") or ignore it. */
+            reason: components["schemas"]["FeedItemReason"];
+            /** @description Zero-based index within THIS page. Echo it (with the page `requestId`) in events and engagement `context`. */
+            position: number;
+        };
+        /** @enum {string} */
+        FeedItemReason: "OWN_POST" | "FOLLOWED_AUTHOR" | "SPORT_INTEREST" | "CREATOR_AFFINITY" | "TRENDING" | "DISCOVERY";
+        FeedPage: {
+            /** @description Identifies this served page. Send it back as `feedRequestId` in events and engagement context. */
+            requestId: components["schemas"]["Id"];
+            /** @description e.g. "chrono-v1", "ranked-v1", "explore-v1". */
+            algorithmVersion: string;
+            items: components["schemas"]["FeedItem"][];
+            /** @description Pass as `cursor` for the next page; null at the end. A page can hold fewer than `limit` items (content may have become invisible since the feed was built). On `FEED_EXPIRED` (410) refetch without a cursor. */
+            nextCursor: string | null;
         };
         /** @enum {string} */
         FeedSurface: "HOME" | "FOLLOWING" | "EXPLORE" | "PROFILE" | "SEARCH" | "POST_DETAIL" | "TOPIC" | "OTHER";
@@ -6669,6 +6781,255 @@ export interface operations {
             };
             /** @description Default Response */
             401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    getFollowingFeed: {
+        parameters: {
+            query?: {
+                /** @description Page size, 1..50. */
+                limit?: number;
+                /** @description Opaque cursor from the previous page's `nextCursor`. Never construct one yourself. */
+                cursor?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Default Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FeedPage"];
+                };
+            };
+            /** @description Default Response */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Default Response */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Default Response */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    getHomeFeed: {
+        parameters: {
+            query?: {
+                /** @description Page size, 1..50. */
+                limit?: number;
+                /** @description Opaque cursor from the previous page's `nextCursor`. Never construct one yourself. */
+                cursor?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Default Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FeedPage"];
+                };
+            };
+            /** @description Default Response */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Default Response */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Default Response */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Default Response */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    getExploreFeed: {
+        parameters: {
+            query?: {
+                /** @description Page size, 1..50. */
+                limit?: number;
+                /** @description Opaque cursor from the previous page's `nextCursor`. Never construct one yourself. */
+                cursor?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Default Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FeedPage"];
+                };
+            };
+            /** @description Default Response */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Default Response */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Default Response */
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Default Response */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    recordEvents: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    events: {
+                        eventId: components["schemas"]["Id"];
+                        type: components["schemas"]["ClientEventType"];
+                        postId?: components["schemas"]["Id"];
+                        subjectUserId?: components["schemas"]["Id"];
+                        /** @description Required for TOPIC_INTERACTION. */
+                        topic?: string;
+                        surface?: components["schemas"]["FeedSurface"];
+                        feedRequestId?: components["schemas"]["Id"];
+                        position?: number;
+                        /** @description Required for WATCH_TIME: milliseconds watched. */
+                        valueMs?: number;
+                        clientTs?: components["schemas"]["IsoDateTime"];
+                    }[];
+                };
+            };
+        };
+        responses: {
+            /** @description Default Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EventBatchResult"];
+                };
+            };
+            /** @description Default Response */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Default Response */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Default Response */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Default Response */
+            429: {
                 headers: {
                     [name: string]: unknown;
                 };

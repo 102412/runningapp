@@ -4,6 +4,11 @@ import {
   MediaProcessJob,
   MediaStatusChangedJob,
 } from './modules/media/service';
+import {
+  PurgeAnalyticsJob,
+  RefreshAffinitiesJob,
+  RollupPostStatsJob,
+} from './modules/feed/analytics';
 import { PushNotificationJob } from './modules/notifier';
 import { SendEmailJob } from './platform/mail/service';
 import { z } from 'zod';
@@ -32,12 +37,18 @@ export function registerJobs(services: Services): { registry: JobRegistry; sched
   registry.register(MediaStatusChangedJob, services.posts.handleMediaStatusChanged);
   registry.register(PurgeDeletedPostsJob, services.posts.handlePurgeDeleted);
   registry.register(PushNotificationJob, services.notifications.handlePush);
+  registry.register(RollupPostStatsJob, services.feedAnalytics.handleRollup);
+  registry.register(RefreshAffinitiesJob, services.feedAnalytics.handleAffinities);
+  registry.register(PurgeAnalyticsJob, services.feedAnalytics.handlePurge);
 
   const schedules: Schedule[] = [
     { spec: PurgeFinishedJobsJob, payload: {}, everySeconds: 3600 },
     { spec: PurgeAuthDataJob, payload: {}, everySeconds: 3600 },
     { spec: MediaCleanupJob, payload: {}, everySeconds: 900 },
     { spec: PurgeDeletedPostsJob, payload: {}, everySeconds: 6 * 3600 },
+    { spec: RollupPostStatsJob, payload: {}, everySeconds: 300 },
+    { spec: RefreshAffinitiesJob, payload: {}, everySeconds: 300 },
+    { spec: PurgeAnalyticsJob, payload: {}, everySeconds: 6 * 3600 },
   ];
   return { registry, schedules };
 }

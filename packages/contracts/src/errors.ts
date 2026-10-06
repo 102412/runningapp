@@ -69,6 +69,10 @@ export const ERROR_CATALOG = {
   },
   // 410
   TOKEN_CONSUMED_OR_EXPIRED: { status: 410, message: 'This link has expired or was already used.' },
+  FEED_EXPIRED: {
+    status: 410,
+    message: 'This feed page has expired. Refresh the feed from the top.',
+  },
   // 413 / 415
   PAYLOAD_TOO_LARGE: { status: 413, message: 'The request body is too large.' },
   UNSUPPORTED_MEDIA_TYPE: { status: 415, message: 'Unsupported content type.' },
