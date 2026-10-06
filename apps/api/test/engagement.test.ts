@@ -697,3 +697,51 @@ describe('engagement', () => {
     }, 120_000);
   });
 });
+
+describe('deleted comments', () => {
+  let t: TestApp;
+  beforeAll(async () => {
+    t = await createTestApp();
+  });
+  afterAll(async () => {
+    await t.close();
+  });
+
+  it('erase their text immediately and are purged after the retention window', async () => {
+    const author = await signupUser(t);
+    const fan = await signupUser(t);
+    const post = await createPost(t, author);
+    const parent = (
+      await api(t, fan).post(`/posts/${post.id}/comments`, { body: 'something I will regret' })
+    ).json<{ id: string }>();
+    await api(t, author).post(`/posts/${post.id}/comments`, {
+      body: 'a reply',
+      parentId: parent.id,
+    });
+
+    expect((await api(t, fan).del(`/comments/${parent.id}`)).statusCode).toBe(204);
+    const rows = await t.platform.db
+      .selectFrom('comments')
+      .select(['body', 'deletedAt'])
+      .where('postId', '=', post.id)
+      .execute();
+    expect(rows).toHaveLength(2); // kept for now (counters, thread integrity)...
+    expect(rows.every((r) => r.deletedAt !== null && r.body === '[deleted]')).toBe(true); // ...but the text is gone
+    expect(JSON.stringify(rows)).not.toContain('regret');
+
+    await t.services.engagement.handlePurgeDeleted();
+    expect(await t.platform.db.selectFrom('comments').select('id').execute()).toHaveLength(2);
+    t.clock.advanceSeconds(31 * 86_400);
+    await t.services.engagement.handlePurgeDeleted();
+    expect(await t.platform.db.selectFrom('comments').select('id').execute()).toHaveLength(0);
+    expect((await postCountsOf(t, post.id)).commentCount).toBe(0);
+  });
+});
+
+async function postCountsOf(t: TestApp, postId: string) {
+  return t.platform.db
+    .selectFrom('posts')
+    .select('commentCount')
+    .where('id', '=', postId)
+    .executeTakeFirstOrThrow();
+}

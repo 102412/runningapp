@@ -1,0 +1,11 @@
+.git
+.github
+**/node_modules
+**/dist
+**/.local-storage
+**/coverage
+.env
+.env.*
+!.env.example
+docs
+*.md

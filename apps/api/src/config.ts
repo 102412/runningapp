@@ -92,6 +92,8 @@ const envSchema = z.object({
     .int()
     .default(25 * 1024 * 1024),
   MEDIA_MAX_PIXELS: z.coerce.number().int().default(80_000_000),
+  /** Processed media that never got attached to a post (or set as an avatar) is deleted after this long. */
+  MEDIA_ORPHAN_RETENTION_DAYS: z.coerce.number().int().min(1).max(365).default(14),
   FFMPEG_PATH: z.string().default('ffmpeg'),
   FFPROBE_PATH: z.string().default('ffprobe'),
 
@@ -148,9 +150,16 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
 
   if (isProduction) {
     const problems: string[] = [];
-    if (withDefaults.JWT_SECRET === DEV_JWT_SECRET) problems.push('JWT_SECRET must be set');
-    if (withDefaults.MEDIA_SIGNING_SECRET === DEV_MEDIA_SECRET) {
-      problems.push('MEDIA_SIGNING_SECRET must be set');
+    // Refuse the built-in dev secrets AND anything still carrying a placeholder from .env.example.
+    const placeholder = /change-me|dev-only|example|placeholder/i;
+    if (withDefaults.JWT_SECRET === DEV_JWT_SECRET || placeholder.test(withDefaults.JWT_SECRET)) {
+      problems.push('JWT_SECRET must be set to a real secret');
+    }
+    if (
+      withDefaults.MEDIA_SIGNING_SECRET === DEV_MEDIA_SECRET ||
+      placeholder.test(withDefaults.MEDIA_SIGNING_SECRET)
+    ) {
+      problems.push('MEDIA_SIGNING_SECRET must be set to a real secret');
     }
     if (withDefaults.DEV_AUTO_VERIFY_EMAIL) problems.push('DEV_AUTO_VERIFY_EMAIL must be false');
     if (withDefaults.DEV_ENDPOINTS_ENABLED) problems.push('DEV_ENDPOINTS_ENABLED must be false');

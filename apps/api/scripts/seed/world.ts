@@ -8,7 +8,7 @@ import type { CreatorCategory } from '@runningapp/contracts';
 export type Sport =
   'running' | 'cycling' | 'swimming' | 'strength_training' | 'hiking' | 'triathlon' | 'walking';
 
-export interface Plan {
+interface Plan {
   /** Average activities per week. */
   perWeek: number;
   /** Sport mix with relative weights. */

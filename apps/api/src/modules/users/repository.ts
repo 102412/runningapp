@@ -61,15 +61,6 @@ export class UserRepository {
     return db.selectFrom('users').select(USER_COLUMNS).where('id', '=', id).executeTakeFirst();
   }
 
-  async usernameExists(username: string, db: Db = this.db): Promise<boolean> {
-    const row = await db
-      .selectFrom('profiles')
-      .select('userId')
-      .where('username', '=', username)
-      .executeTakeFirst();
-    return row !== undefined;
-  }
-
   /**
    * Creates users + profiles + user_settings atomically. Uniqueness is enforced by the database
    * (not a check-then-insert), so concurrent signups cannot both win.

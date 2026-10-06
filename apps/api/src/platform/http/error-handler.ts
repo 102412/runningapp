@@ -1,7 +1,7 @@
 import type { FastifyError, FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 import { hasZodFastifySchemaValidationErrors } from 'fastify-type-provider-zod';
 import { ERROR_CATALOG, type ErrorCode, type ErrorResponse } from '@runningapp/contracts';
-import { AppError, isAppError, type ErrorDetail } from '../errors';
+import { isAppError, type ErrorDetail } from '../errors';
 
 function body(
   code: ErrorCode,
@@ -81,5 +81,3 @@ export function installErrorHandling(app: FastifyInstance): void {
     return reply.status(500).send(body('INTERNAL', requestId));
   });
 }
-
-export { AppError };

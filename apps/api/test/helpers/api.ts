@@ -1,4 +1,3 @@
-import type { FastifyInstance } from 'fastify';
 import type { LightMyRequestResponse } from 'fastify';
 import { registerJobs } from '../../src/jobs';
 import { JobWorker } from '../../src/platform/jobs/worker';
@@ -151,5 +150,3 @@ export async function latestMail(
     .executeTakeFirst();
   return row ? { token: row.token, text: row.textBody } : undefined;
 }
-
-export type { FastifyInstance };

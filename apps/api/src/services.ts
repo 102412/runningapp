@@ -7,11 +7,12 @@ import { FeedAnalytics } from './modules/feed/analytics';
 import { FeedService } from './modules/feed/service';
 import { AccountPurger } from './flows/purge-account';
 import { ExportService } from './modules/exports/service';
+import { DevOutbox } from './modules/dev/outbox';
 import { DiscoveryService } from './modules/discovery/service';
 import { PostgresSearchProvider } from './modules/search/postgres';
 import type { SearchProvider } from './modules/search/provider';
 import { SearchService } from './modules/search/service';
-import type { EventRecorder } from './modules/events/recorder';
+import type { EventRecorder } from './platform/ports/event-recorder';
 import { NotificationService } from './modules/notifications/service';
 import { PostHydrator } from './modules/posts/hydrator';
 import { PostService } from './modules/posts/service';
@@ -78,6 +79,7 @@ export interface Services {
   readonly feedAnalytics: FeedAnalytics;
   readonly search: SearchService;
   readonly reports: ReportService;
+  readonly devOutbox: DevOutbox;
   readonly dataExports: ExportService;
   readonly accountPurger: AccountPurger;
   readonly moderation: ModerationService;
@@ -143,7 +145,7 @@ export function createServices(
   const ffmpeg = new Ffmpeg(config.FFMPEG_PATH, config.FFPROBE_PATH);
   const media = new MediaService(config, db, clock, storage, jobs, ffmpeg, moderator, logger);
   directory.setAvatarResolver(media.resolveAvatars);
-  const creators = new CreatorService(db, clock);
+  const creators = new CreatorService(db);
   const profiles = new ProfileService(
     config,
     db,
@@ -180,6 +182,7 @@ export function createServices(
     moderator,
     events,
     flags,
+    clock,
   );
   const push = overrides.push ?? new LoggingPushProvider(logger);
   const notifications = new NotificationService(db, directory, media, push);
@@ -188,6 +191,7 @@ export function createServices(
   const feed = new FeedService(config, db, clock, postHydrator, agePolicy, logger);
   const feedAnalytics = new FeedAnalytics(config, db, clock, logger);
   const reports = new ReportService(db, clock);
+  const devOutbox = new DevOutbox(db);
   const moderation = new ModerationService(db, clock, directory, postHydrator, notifier);
   const dataExports = new ExportService(db, clock, jobs, storage, users, logger);
   const accountPurger = new AccountPurger(db, clock, jobs, logger);
@@ -222,6 +226,7 @@ export function createServices(
     search,
     discovery,
     reports,
+    devOutbox,
     dataExports,
     accountPurger,
     moderation,

@@ -6,7 +6,7 @@ import type { Config } from '../config';
  * Redaction is defence in depth: even if a future change logs an object containing
  * credentials, these paths are censored.
  */
-export const REDACT_PATHS = [
+const REDACT_PATHS = [
   'req.headers.authorization',
   'req.headers.cookie',
   'res.headers["set-cookie"]',

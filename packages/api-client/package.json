@@ -27,7 +27,6 @@
     "test": "vitest run --passWithNoTests"
   },
   "dependencies": {
-    "@runningapp/contracts": "workspace:*",
     "openapi-fetch": "^0.17.0"
   },
   "devDependencies": {

@@ -6,12 +6,13 @@ import type {
   ReactionType,
   ShareChannel,
 } from '@runningapp/contracts';
+import type { Clock } from '../../platform/clock';
 import type { Db } from '../../platform/db/client';
 import { keysetBefore, timestampText } from '../../platform/db/keyset';
 import { AppError } from '../../platform/errors';
 import { decodeCursor, encodeCursor, sliceProbe } from '../../platform/http/cursor';
 import type { ContentModerator, ModerationFlagSink } from '../../platform/ports/content-moderation';
-import type { EventRecorder } from '../events/recorder';
+import type { EventRecorder } from '../../platform/ports/event-recorder';
 import type { Notifier } from '../notifier';
 import { canComment, POST_COLUMNS, type PostHydrator, type PostRow } from '../posts/hydrator';
 import { extractMentions } from '../posts/text';
@@ -21,6 +22,9 @@ import { accountVisibleTo } from '../social/visibility';
 import type { UserDirectory } from '../users/directory';
 
 const IdCursor = z.object({ id: z.uuid() });
+/** Replaces the text of a deleted comment (the body column cannot be empty). */
+const DELETED_COMMENT_BODY = '[deleted]';
+const DELETED_COMMENT_RETENTION_DAYS = 30;
 const TimeCursor = z.object({ t: z.string(), id: z.uuid() });
 
 export interface Page<T> {
@@ -65,6 +69,7 @@ export class EngagementService {
     private readonly moderator: ContentModerator,
     private readonly events: EventRecorder,
     private readonly flags: ModerationFlagSink,
+    private readonly clock: Clock,
   ) {}
 
   // ------------------------------------------------------------------ guards
@@ -494,10 +499,11 @@ export class EngagementService {
         message: 'Only the comment author or the post author can delete a comment.',
       });
     await this.db.transaction().execute(async (trx) => {
-      const now = new Date();
+      // Soft delete AND erase the text now: the row lingers for a retention window (so counters and
+      // threads stay coherent) but must not keep what the person wrote.
       const affected = await trx
         .updateTable('comments')
-        .set({ deletedAt: now })
+        .set({ deletedAt: this.clock.now(), body: DELETED_COMMENT_BODY })
         .where((eb) => eb.or([eb('id', '=', commentId), eb('parentId', '=', commentId)]))
         .where('deletedAt', 'is', null)
         .returning('id')
@@ -513,6 +519,14 @@ export class EngagementService {
           .execute();
     });
   }
+
+  /** Permanently removes comments that were deleted more than the retention window ago. */
+  readonly handlePurgeDeleted = async (): Promise<void> => {
+    const cutoff = new Date(
+      this.clock.now().getTime() - DELETED_COMMENT_RETENTION_DAYS * 86_400_000,
+    );
+    await this.db.deleteFrom('comments').where('deletedAt', '<', cutoff).execute();
+  };
 
   // ------------------------------------------------------------------ comment reactions
 

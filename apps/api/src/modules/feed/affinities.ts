@@ -6,7 +6,7 @@ import type { FeedEventType, PostFormat } from '@runningapp/contracts';
  * (skip, "not interested", unlike, unfollow) lower it, and older events count for less.
  */
 
-export type AffinitySubjectType = 'SPORT' | 'CREATOR' | 'FORMAT' | 'TOPIC';
+type AffinitySubjectType = 'SPORT' | 'CREATOR' | 'FORMAT' | 'TOPIC';
 
 export interface AffinityEvent {
   type: FeedEventType;

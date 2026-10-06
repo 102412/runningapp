@@ -20,10 +20,13 @@ import type { Schedule } from './platform/jobs/scheduler';
 import { JobRegistry } from './platform/jobs/worker';
 import type { Services } from './services';
 
-export const PurgeDeletedPostsJob = jobSpec('posts.purge_deleted', z.object({}), {
+const PurgeDeletedPostsJob = jobSpec('posts.purge_deleted', z.object({}), {
   maxAttempts: 3,
 });
-export const PurgeAuthDataJob = jobSpec('auth.purge_expired', z.object({}), { maxAttempts: 3 });
+const PurgeDeletedCommentsJob = jobSpec('comments.purge_deleted', z.object({}), {
+  maxAttempts: 3,
+});
+const PurgeAuthDataJob = jobSpec('auth.purge_expired', z.object({}), { maxAttempts: 3 });
 
 /** Registers every background job handler and returns the recurring schedules. */
 export function registerJobs(services: Services): { registry: JobRegistry; schedules: Schedule[] } {
@@ -38,6 +41,7 @@ export function registerJobs(services: Services): { registry: JobRegistry; sched
   registry.register(MediaCleanupJob, services.media.handleCleanup);
   registry.register(MediaStatusChangedJob, services.posts.handleMediaStatusChanged);
   registry.register(PurgeDeletedPostsJob, services.posts.handlePurgeDeleted);
+  registry.register(PurgeDeletedCommentsJob, services.engagement.handlePurgeDeleted);
   registry.register(PushNotificationJob, services.notifications.handlePush);
   registry.register(RollupPostStatsJob, services.feedAnalytics.handleRollup);
   registry.register(RefreshAffinitiesJob, services.feedAnalytics.handleAffinities);
@@ -51,6 +55,7 @@ export function registerJobs(services: Services): { registry: JobRegistry; sched
     { spec: PurgeAuthDataJob, payload: {}, everySeconds: 3600 },
     { spec: MediaCleanupJob, payload: {}, everySeconds: 900 },
     { spec: PurgeDeletedPostsJob, payload: {}, everySeconds: 6 * 3600 },
+    { spec: PurgeDeletedCommentsJob, payload: {}, everySeconds: 6 * 3600 },
     { spec: RollupPostStatsJob, payload: {}, everySeconds: 300 },
     { spec: RefreshAffinitiesJob, payload: {}, everySeconds: 300 },
     { spec: PurgeAnalyticsJob, payload: {}, everySeconds: 6 * 3600 },

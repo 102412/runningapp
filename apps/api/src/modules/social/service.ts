@@ -5,7 +5,7 @@ import { isBlockedPairViolation } from '../../platform/db/errors';
 import { keysetBefore, timestampText } from '../../platform/db/keyset';
 import { AppError } from '../../platform/errors';
 import { decodeCursor, encodeCursor, sliceProbe } from '../../platform/http/cursor';
-import type { EventRecorder } from '../events/recorder';
+import type { EventRecorder } from '../../platform/ports/event-recorder';
 import type { Notifier } from '../notifier';
 import type { UserDirectory } from '../users/directory';
 import { accountVisibleTo } from './visibility';

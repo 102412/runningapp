@@ -54,6 +54,9 @@ jobs:
       - name: Typecheck
         run: pnpm typecheck
 
+      - name: Dead code and unused dependencies
+        run: pnpm deadcode
+
       - name: Migrations apply cleanly to an empty database
         run: pnpm db:migrate
 
@@ -65,10 +68,52 @@ jobs:
       - name: OpenAPI spec and generated client types are up to date
         run: |
           pnpm openapi
-          git diff --exit-code docs/openapi.json packages/api-client/src/generated
+          git diff --exit-code docs/openapi.json docs/API_REFERENCE.md packages/api-client/src/generated
 
       - name: Test
         run: pnpm test
 
       - name: Build
         run: pnpm build
+
+      - name: Seed smoke test (the demo world still builds through the real services)
+        run: |
+          pnpm db:reset
+          pnpm db:seed -- --no-media
+
+  docker:
+    # Builds the production image and proves the bundled API / worker / migration runner start.
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build image
+        run: docker build -f apps/api/Dockerfile -t runningapp-api:ci .
+      - name: ffmpeg is present in the image
+        run: docker run --rm --entrypoint ffmpeg runningapp-api:ci -version
+      - name: Migrations apply and the API reports ready
+        run: |
+          docker network create ci
+          docker run -d --name pg --network ci -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=app postgres:16
+          for i in $(seq 1 30); do docker exec pg pg_isready -U postgres && break; sleep 1; done
+          COMMON="--network ci -e NODE_ENV=production -e DATABASE_URL=postgres://postgres:postgres@pg:5432/app \
+            -e JWT_SECRET=ci-jwt-secret-that-is-long-enough-123456789 -e MEDIA_SIGNING_SECRET=ci-media-secret-that-is-long-enough-12345 \
+            -e MAIL_DRIVER=smtp -e SMTP_URL=smtp://localhost:2525 -e STORAGE_DRIVER=s3 -e S3_BUCKET=ci -e S3_ACCESS_KEY_ID=ci -e S3_SECRET_ACCESS_KEY=ci \
+            -e CORS_ORIGINS=https://app.example.com -e PUBLIC_BASE_URL=https://api.example.com"
+          docker run --rm $COMMON runningapp-api:ci node dist/migrate.js
+          docker run -d --name api $COMMON runningapp-api:ci
+          for i in $(seq 1 30); do [ "$(docker inspect -f '{{.State.Health.Status}}' api)" = healthy ] && exit 0; sleep 2; done
+          docker logs api
+          exit 1
+
+  audit:
+    # Advisory: reports known-vulnerable production dependencies without blocking merges.
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+      - run: pnpm audit --prod

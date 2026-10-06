@@ -1,5 +1,5 @@
 import type { EventContext, FeedEventType } from '@runningapp/contracts';
-import type { Db } from '../../platform/db/client';
+import type { Db } from '../db/client';
 
 export interface RecordedEvent {
   userId: string;

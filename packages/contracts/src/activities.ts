@@ -40,6 +40,7 @@ export const RouteInputSchema = z
       .describe('Google encoded polyline, precision 5.'),
     points: z.array(LatLonSchema).min(2).max(50_000).optional(),
   })
+  .strict()
   .refine((r) => (r.polyline === undefined) !== (r.points === undefined), {
     message: 'Provide exactly one of `polyline` or `points`.',
   });

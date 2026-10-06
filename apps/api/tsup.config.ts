@@ -1,9 +1,9 @@
 import { defineConfig } from 'tsup';
 
-// Bundles the API and the worker. Workspace packages are inlined so the production
+// Bundles the API, the worker and the migration runner (`node dist/migrate.js`). Workspace packages are inlined so the production
 // image needs only third-party node_modules. Migrations ship as plain .sql files.
 export default defineConfig({
-  entry: { server: 'src/server.ts', worker: 'src/worker.ts' },
+  entry: { server: 'src/server.ts', worker: 'src/worker.ts', migrate: 'scripts/migrate.ts' },
   format: ['esm'],
   target: 'node22',
   platform: 'node',

@@ -19,25 +19,6 @@ export async function devRoutes(app: FastifyInstance, s: Services): Promise<void
       querystring: DevMailQuerySchema,
       response: { 200: DevMailListSchema, ...errors(422) },
     },
-    handler: async (req) => {
-      let q = s.platform.db
-        .selectFrom('devMailOutbox')
-        .selectAll()
-        .orderBy('id', 'desc')
-        .limit(req.query.limit);
-      if (req.query.to) q = q.where('toEmail', '=', req.query.to.toLowerCase());
-      const rows = await q.execute();
-      return {
-        items: rows.map((m) => ({
-          id: m.id,
-          to: m.toEmail,
-          subject: m.subject,
-          template: m.template,
-          token: m.token,
-          text: m.textBody,
-          createdAt: m.createdAt.toISOString(),
-        })),
-      };
-    },
+    handler: async (req) => ({ items: await s.devOutbox.list(req.query) }),
   });
 }

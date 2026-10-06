@@ -168,7 +168,7 @@ export interface PrivacyZone {
   radiusM: number;
 }
 
-export type RoutePrivacyMode = 'FULL' | 'TRIMMED' | 'APPROXIMATE' | 'HIDDEN';
+type RoutePrivacyMode = 'FULL' | 'TRIMMED' | 'APPROXIMATE' | 'HIDDEN';
 
 export interface RoutePrivacyInput {
   points: readonly LatLon[];

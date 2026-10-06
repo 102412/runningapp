@@ -18,11 +18,6 @@ export function isForeignKeyViolation(err: unknown, constraint?: string): boolea
   return e.code === '23503' && (constraint === undefined || e.constraint === constraint);
 }
 
-export function isCheckViolation(err: unknown, constraint?: string): boolean {
-  const e = asPgError(err);
-  return e.code === '23514' && (constraint === undefined || e.constraint === constraint);
-}
-
 /** Raised by the `reject_relationship_across_block` trigger. */
 export function isBlockedPairViolation(err: unknown): boolean {
   const e = asPgError(err);

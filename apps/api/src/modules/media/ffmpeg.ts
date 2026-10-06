@@ -1,6 +1,6 @@
 import { spawn } from 'node:child_process';
 
-export interface ProbeStream {
+interface ProbeStream {
   codecType: string;
   codecName: string;
   /** Display width/height after applying rotation metadata. */

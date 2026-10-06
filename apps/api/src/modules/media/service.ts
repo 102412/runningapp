@@ -785,6 +785,57 @@ export class MediaService {
 
   /** Removes abandoned upload slots (the client never completed them). */
   readonly handleCleanup = async (): Promise<void> => {
+    await this.removeAbandonedUploadSlots();
+    await this.removeOrphanedMedia();
+  };
+
+  /**
+   * Processed media that nobody ever attached to a post or set as an avatar (the user uploaded a
+   * clip in the composer and never published) is removed after MEDIA_ORPHAN_RETENTION_DAYS, together
+   * with every stored object, so abandoned uploads cannot accumulate storage cost forever.
+   */
+  private async removeOrphanedMedia(): Promise<void> {
+    const cutoff = new Date(
+      this.clock.now().getTime() - this.config.MEDIA_ORPHAN_RETENTION_DAYS * 86_400_000,
+    );
+    const orphans = await this.db
+      .selectFrom('mediaAssets as m')
+      .select(['m.id', 'm.ownerId'])
+      .where('m.status', 'in', ['READY', 'FAILED', 'REJECTED'])
+      .where('m.createdAt', '<', cutoff)
+      .where((eb) =>
+        eb.not(
+          eb.exists(
+            eb
+              .selectFrom('postMedia as pm')
+              .select('pm.mediaId')
+              .whereRef('pm.mediaId', '=', 'm.id'),
+          ),
+        ),
+      )
+      .where((eb) =>
+        eb.not(
+          eb.exists(
+            eb
+              .selectFrom('profiles as p')
+              .select('p.userId')
+              .whereRef('p.avatarMediaId', '=', 'm.id'),
+          ),
+        ),
+      )
+      .orderBy('m.id')
+      .limit(500)
+      .execute();
+    if (orphans.length === 0) return;
+    const byOwner = new Map<string, string[]>();
+    for (const o of orphans) byOwner.set(o.ownerId, [...(byOwner.get(o.ownerId) ?? []), o.id]);
+    for (const [ownerId, ids] of byOwner) {
+      await this.db.transaction().execute((trx) => this.deleteRows(trx, ownerId, ids));
+    }
+    this.logger.info({ count: orphans.length }, 'removed orphaned media');
+  }
+
+  private async removeAbandonedUploadSlots(): Promise<void> {
     const cutoff = new Date(this.clock.now().getTime() - UPLOAD_GRACE_MS);
     const stale = await this.db
       .selectFrom('mediaAssets')
@@ -811,5 +862,5 @@ export class MediaService {
       );
     });
     this.logger.info({ count: stale.length }, 'removed abandoned upload slots');
-  };
+  }
 }

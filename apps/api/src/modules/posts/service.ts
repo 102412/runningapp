@@ -237,11 +237,15 @@ export class PostService {
         .select('mediaId')
         .where('postId', '=', id)
         .execute();
+      // The row lingers for the retention window (counters, report evidence lives in the report
+      // snapshot), but what the author wrote is erased now.
       await trx
         .updateTable('posts')
-        .set({ deletedAt: this.clock.now() })
+        .set({ deletedAt: this.clock.now(), caption: '' })
         .where('id', '=', id)
         .execute();
+      await trx.deleteFrom('postTopics').where('postId', '=', id).execute();
+      await trx.deleteFrom('postMentions').where('postId', '=', id).execute();
       await trx.deleteFrom('postMedia').where('postId', '=', id).execute();
       await this.media.deleteRows(
         trx,
@@ -837,7 +841,7 @@ export class PostService {
  * The stored format. For a published post it reflects only what viewers can actually see (READY
  * media + the activity); while unpublished it reflects the intended media so the author's UI is right.
  */
-export function deriveFormat(
+function deriveFormat(
   status: PostStatus,
   activityId: string | null,
   media: readonly MediaState[],

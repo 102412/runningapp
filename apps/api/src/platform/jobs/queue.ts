@@ -22,7 +22,7 @@ export function jobSpec<S extends z.ZodType>(
  * A RUNNING job whose lock is older than this is considered abandoned (worker crashed) and is
  * re-claimed. Every job must therefore finish well within this window.
  */
-export const STALE_LOCK_SECONDS = 15 * 60;
+const STALE_LOCK_SECONDS = 15 * 60;
 
 export interface EnqueueOptions {
   /** Pass a transaction to enqueue atomically with your state change. */

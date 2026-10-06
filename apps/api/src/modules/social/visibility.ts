@@ -16,7 +16,7 @@ export type ColumnRef = string;
 const ref = (r: ColumnRef) => sql.ref(r);
 
 /** TRUE when a block exists between viewer and the user in either direction. */
-export function blockedBetween(viewerId: string | null, userRef: ColumnRef): RawBuilder<boolean> {
+function blockedBetween(viewerId: string | null, userRef: ColumnRef): RawBuilder<boolean> {
   if (viewerId === null) return sql<boolean>`false`;
   return sql<boolean>`exists (
     select 1 from blocks _b

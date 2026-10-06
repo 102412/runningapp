@@ -724,6 +724,36 @@ describe('posts', () => {
       expect((await api(t, u).del(`/posts/${post.id}`)).statusCode).toBe(404);
     }, 60_000);
 
+    it('erases what the author wrote at once, even though the row lingers for the retention window', async () => {
+      const u = await signupUser(t);
+      const other = await signupUser(t);
+      const post = await createPost(t, u, {
+        caption: `private thoughts @${other.username} #secret`,
+        topics: ['journal'],
+      });
+      await api(t, u).del(`/posts/${post.id}`);
+      const row = await t.platform.db
+        .selectFrom('posts')
+        .select(['caption', 'deletedAt'])
+        .where('id', '=', post.id)
+        .executeTakeFirstOrThrow();
+      expect(row.deletedAt).not.toBeNull();
+      expect(row.caption).toBe('');
+      const derived = await Promise.all([
+        t.platform.db
+          .selectFrom('postTopics')
+          .select('postId')
+          .where('postId', '=', post.id)
+          .execute(),
+        t.platform.db
+          .selectFrom('postMentions')
+          .select('postId')
+          .where('postId', '=', post.id)
+          .execute(),
+      ]);
+      expect(derived.map((d) => d.length)).toEqual([0, 0]);
+    });
+
     it('purges soft-deleted posts for good after the retention window', async () => {
       const u = await signupUser(t);
       const post = await createPost(t, u, { caption: 'temp' });

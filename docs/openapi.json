@@ -6976,7 +6976,8 @@
                           "description": "[latitude, longitude] in degrees"
                         }
                       }
-                    }
+                    },
+                    "additionalProperties": false
                   },
                   "visibility": {
                     "$ref": "#/components/schemas/ContentVisibility"

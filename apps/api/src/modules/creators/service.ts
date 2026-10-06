@@ -1,5 +1,4 @@
 import type { BrandPartnership, CreatorCategory, CreatorProfile } from '@runningapp/contracts';
-import type { Clock } from '../../platform/clock';
 import type { Db } from '../../platform/db/client';
 import { keysetBefore, timestampText } from '../../platform/db/keyset';
 import { AppError } from '../../platform/errors';
@@ -10,10 +9,7 @@ const TimeCursor = z.object({ t: z.string(), id: z.uuid() });
 
 /** Creator/professional account metadata and brand-partnership records. */
 export class CreatorService {
-  constructor(
-    private readonly db: Db,
-    private readonly clock: Clock,
-  ) {}
+  constructor(private readonly db: Db) {}
 
   async get(userId: string): Promise<CreatorProfile | null> {
     const row = await this.db
@@ -22,23 +18,6 @@ export class CreatorService {
       .where('userId', '=', userId)
       .executeTakeFirst();
     return row ? toView(row) : null;
-  }
-
-  /** Public view for profile pages: same fields, only if a creator profile exists. */
-  getMany(userIds: readonly string[]): Promise<Map<string, CreatorProfile>> {
-    return this.loadMany(userIds);
-  }
-
-  private async loadMany(userIds: readonly string[]): Promise<Map<string, CreatorProfile>> {
-    const out = new Map<string, CreatorProfile>();
-    if (userIds.length === 0) return out;
-    const rows = await this.db
-      .selectFrom('creatorProfiles')
-      .selectAll()
-      .where('userId', 'in', [...userIds])
-      .execute();
-    for (const r of rows) out.set(r.userId, toView(r));
-    return out;
   }
 
   /**
@@ -95,21 +74,6 @@ export class CreatorService {
     if (!existing)
       throw new AppError('INVALID_STATE', { message: 'Create a creator profile first.' });
     return existing; // already PENDING or VERIFIED: idempotent
-  }
-
-  /** Staff-only; called by the moderation module so the change is audited. */
-  async setVerification(db: Db, userId: string, verified: boolean, staffId: string): Promise<void> {
-    const res = await db
-      .updateTable('creatorProfiles')
-      .set(
-        verified
-          ? { verificationStatus: 'VERIFIED', verifiedAt: this.clock.now(), verifiedBy: staffId }
-          : { verificationStatus: 'NONE', verifiedAt: null, verifiedBy: null },
-      )
-      .where('userId', '=', userId)
-      .executeTakeFirst();
-    if (Number(res.numUpdatedRows) === 0)
-      throw new AppError('USER_NOT_FOUND', { message: 'That user has no creator profile.' });
   }
 
   // ------------------------------------------------------------------ brand partnerships

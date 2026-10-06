@@ -1,7 +1,7 @@
 import { sql } from 'kysely';
 import type { Db } from '../../platform/db/client';
 import { uuidv7 } from '../../platform/ids';
-import type { EventRecorder, RecordedEvent } from './recorder';
+import type { EventRecorder, RecordedEvent } from '../../platform/ports/event-recorder';
 
 /**
  * Records server-originated behavioural events (likes, comments, follows...) into `feed_events`.

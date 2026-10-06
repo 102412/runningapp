@@ -77,7 +77,7 @@ export interface RankingWeights {
   sponsoredDiscoveryPenalty: number;
 }
 
-export const DEFAULT_WEIGHTS: RankingWeights = {
+const DEFAULT_WEIGHTS: RankingWeights = {
   recency: 0.35,
   recencyHalfLifeHours: 36,
   followed: 0.3,
@@ -106,9 +106,7 @@ const clamp = (v: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, v
 const round4 = (v: number) => Math.round(v * 10_000) / 10_000;
 
 /** Weighted engagement count: a comment or share says more than a reaction. */
-export function engagementCount(
-  c: Pick<Candidate, 'reactions' | 'comments' | 'shares' | 'bookmarks'>,
-) {
+function engagementCount(c: Pick<Candidate, 'reactions' | 'comments' | 'shares' | 'bookmarks'>) {
   return c.reactions + 2 * c.comments + 3 * c.shares + 1.5 * c.bookmarks;
 }
 
@@ -137,7 +135,7 @@ export function qualityScore(c: Candidate): number {
 }
 
 /** Log-scaled popularity in [0, 1]; 200 weighted engagements saturates it. */
-export function popularityScore(c: Candidate): number {
+function popularityScore(c: Candidate): number {
   return clamp(Math.log1p(engagementCount(c)) / Math.log1p(200), 0, 1);
 }
 
