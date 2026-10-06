@@ -10,7 +10,7 @@ import type { Db } from '../../platform/db/client';
 import { keysetBefore, timestampText } from '../../platform/db/keyset';
 import { AppError } from '../../platform/errors';
 import { decodeCursor, encodeCursor, sliceProbe } from '../../platform/http/cursor';
-import type { ContentModerator } from '../../platform/ports/content-moderation';
+import type { ContentModerator, ModerationFlagSink } from '../../platform/ports/content-moderation';
 import type { EventRecorder } from '../events/recorder';
 import type { Notifier } from '../notifier';
 import { canComment, POST_COLUMNS, type PostHydrator, type PostRow } from '../posts/hydrator';
@@ -64,6 +64,7 @@ export class EngagementService {
     private readonly notifier: Notifier,
     private readonly moderator: ContentModerator,
     private readonly events: EventRecorder,
+    private readonly flags: ModerationFlagSink,
   ) {}
 
   // ------------------------------------------------------------------ guards
@@ -329,6 +330,15 @@ export class EngagementService {
       await this.events.record({ userId, type: 'COMMENT', postId, context: input.context }, trx);
       return row.id;
     });
+    // Automated review: a FLAG lets the comment through but queues it for a human.
+    if (verdict.verdict === 'FLAG') {
+      await this.flags.flag({
+        targetType: 'COMMENT',
+        targetId: commentId,
+        reason: verdict.reason,
+        text: body,
+      });
+    }
     const [comment] = await this.hydrateComments(userId, [await this.commentRow(commentId)]);
     if (!comment) throw new AppError('COMMENT_NOT_FOUND');
     return comment;

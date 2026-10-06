@@ -14,3 +14,7 @@ export * from './engagement';
 export * from './notifications';
 export * from './feed';
 export * from './events';
+export * from './moderation';
+export * from './search';
+export * from './discovery';
+export * from './exports';

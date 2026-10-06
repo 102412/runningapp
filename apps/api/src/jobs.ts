@@ -9,6 +9,8 @@ import {
   RefreshAffinitiesJob,
   RollupPostStatsJob,
 } from './modules/feed/analytics';
+import { ExportBuildJob, ExportExpireJob } from './modules/exports/service';
+import { PurgeDueAccountsJob } from './flows/purge-account';
 import { PushNotificationJob } from './modules/notifier';
 import { SendEmailJob } from './platform/mail/service';
 import { z } from 'zod';
@@ -40,6 +42,9 @@ export function registerJobs(services: Services): { registry: JobRegistry; sched
   registry.register(RollupPostStatsJob, services.feedAnalytics.handleRollup);
   registry.register(RefreshAffinitiesJob, services.feedAnalytics.handleAffinities);
   registry.register(PurgeAnalyticsJob, services.feedAnalytics.handlePurge);
+  registry.register(ExportBuildJob, services.dataExports.handleBuild);
+  registry.register(ExportExpireJob, services.dataExports.handleExpire);
+  registry.register(PurgeDueAccountsJob, services.accountPurger.handlePurgeDue);
 
   const schedules: Schedule[] = [
     { spec: PurgeFinishedJobsJob, payload: {}, everySeconds: 3600 },
@@ -49,6 +54,8 @@ export function registerJobs(services: Services): { registry: JobRegistry; sched
     { spec: RollupPostStatsJob, payload: {}, everySeconds: 300 },
     { spec: RefreshAffinitiesJob, payload: {}, everySeconds: 300 },
     { spec: PurgeAnalyticsJob, payload: {}, everySeconds: 6 * 3600 },
+    { spec: ExportExpireJob, payload: {}, everySeconds: 3600 },
+    { spec: PurgeDueAccountsJob, payload: {}, everySeconds: 900 },
   ];
   return { registry, schedules };
 }

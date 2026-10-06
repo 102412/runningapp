@@ -55,5 +55,6 @@ export function contentTypeForKey(key: string): string {
   if (key.endsWith('.jpg') || key.endsWith('.jpeg')) return 'image/jpeg';
   if (key.endsWith('.webp')) return 'image/webp';
   if (key.endsWith('.png')) return 'image/png';
+  if (key.endsWith('.json')) return 'application/json';
   return 'application/octet-stream';
 }

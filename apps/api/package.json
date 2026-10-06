@@ -17,6 +17,7 @@
     "db:seed": "tsx --conditions source scripts/seed.ts",
     "db:reset": "tsx --conditions source scripts/reset.ts",
     "db:codegen": "tsx --conditions source scripts/codegen.ts",
+    "admin:grant": "tsx --conditions source scripts/grant-role.ts",
     "openapi:generate": "tsx --conditions source scripts/generate-openapi.ts"
   },
   "dependencies": {

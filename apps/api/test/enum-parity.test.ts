@@ -27,11 +27,14 @@ describe('contract <-> database parity', () => {
     await t.close();
   });
 
-  it('every shared enum present in the database has exactly the contract values', () => {
+  it('every shared enum exists in the database with exactly the contract values', () => {
     for (const [name, values] of Object.entries(DB_ENUM_PARITY)) {
       const db = dbEnums.get(name);
-      if (db === undefined) continue; // migration for this enum not written yet (checked in the final audit)
-      expect([...db].sort(), `enum ${name}`).toEqual([...values].sort());
+      expect(
+        db,
+        `enum ${name} is declared in the contract but missing from the database`,
+      ).toBeDefined();
+      expect([...(db ?? [])].sort(), `enum ${name}`).toEqual([...values].sort());
     }
   });
 

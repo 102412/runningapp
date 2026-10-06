@@ -1406,6 +1406,313 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/search": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Search overview: the top few users, topics and posts
+         * @description Use it for the first screen of results; page through one kind with the typed endpoints. Results never include blocked users, private accounts you do not follow, accounts that opted out of discovery, or accounts under the minimum public age.
+         */
+        get: operations["search"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/search/users": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Find people by username or name (exact and prefix matches rank first)
+         * @description Tolerates small typos. Results never include blocked users, private accounts you do not follow, accounts that opted out of discovery, or accounts under the minimum public age. Results are capped at 500.
+         */
+        get: operations["searchUsers"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/search/posts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Find posts by caption text or topic
+         * @description The last word is matched as a prefix. Results never include blocked users, private accounts you do not follow, accounts that opted out of discovery, or accounts under the minimum public age. Results are capped at 500.
+         */
+        get: operations["searchPosts"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/search/topics": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Find topics (hashtags) that public posts use */
+        get: operations["searchTopics"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/discover/athletes": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Who to follow
+         * @description People followed by people you follow, people who share your sports, then popular and creator accounts. Excludes yourself, people you follow or requested, blocked users and accounts that opted out. Capped at 200.
+         */
+        get: operations["suggestAthletes"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/discover/topics": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Trending topics (last 7 days, used by at least two different people) */
+        get: operations["listTrendingTopics"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/topics/{slug}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** A topic and how many public posts use it */
+        get: operations["getTopic"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/topics/{slug}/posts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Posts using a topic, newest first
+         * @description Anonymous visitors see public posts of public accounts; signed-in users also see what their follows allow.
+         */
+        get: operations["listTopicPosts"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/reports": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Report a post, comment or user
+         * @description You can only report what you can see (otherwise 404), not your own content, and each thing once (`ALREADY_REPORTED`). Reports go to a human moderation queue; you are not told the outcome.
+         */
+        post: operations["createReport"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/me/reports": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Reports you filed (status only) */
+        get: operations["listMyReports"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/reports": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Moderation queue, oldest first
+         * @description Moderators and admins. Filter by `status` (usually OPEN), `targetType`, `source` or `reason`.
+         */
+        get: operations["adminListReports"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/reports/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** One report with the reported content and the audit trail for the target */
+        get: operations["adminGetReport"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/reports/{id}/resolve": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Act on a report (hide, remove, warn, suspend) or dismiss it
+         * @description Writes the audit trail and notifies the affected user. Acting on content settles every other open report about it. You cannot act against accounts of equal or higher role. For `WARN_USER` the note is shown to the user.
+         */
+        post: operations["adminResolveReport"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/moderation/actions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * The moderation audit trail, newest first
+         * @description Append-only. Filter by `targetType` and/or `targetId` (a post, comment or user id).
+         */
+        get: operations["adminListActions"];
+        put?: never;
+        /**
+         * Take a moderation action without a report (restore, unsuspend, verify creators...)
+         * @description `SET_CREATOR_VERIFICATION` is admin-only.
+         */
+        post: operations["adminTakeAction"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/me/exports": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Your recent data exports */
+        get: operations["listDataExports"];
+        put?: never;
+        /**
+         * Request a download of all your data
+         * @description Requires your password. The file is built in the background (poll `GET /me/exports/{id}`), stays available for 7 days, and one export can be requested per day. If an export is already being built it is returned instead of starting another.
+         */
+        post: operations["requestDataExport"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/me/exports/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Status of an export; a fresh short-lived download link once READY */
+        get: operations["getDataExport"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/storage/upload": {
         parameters: {
             query?: never;
@@ -1539,6 +1846,47 @@ export interface components {
             avgHeartRateBpm: number | null;
             avgSpeedMps: number | null;
         };
+        AdminReport: {
+            id: components["schemas"]["Id"];
+            source: components["schemas"]["ReportSource"];
+            status: components["schemas"]["ReportStatus"];
+            reason: components["schemas"]["ReportReason"];
+            details: string | null;
+            /** @description Null for automated reports. */
+            reporter: components["schemas"]["UserSummary"] | null;
+            target: components["schemas"]["ReportTargetView"];
+            /** @description Reports filed against the same target (all statuses). */
+            reportCount: number;
+            resolvedBy: components["schemas"]["UserSummary"] | null;
+            resolvedAt: components["schemas"]["IsoDateTime"] | null;
+            resolutionNote: string | null;
+            createdAt: components["schemas"]["IsoDateTime"];
+        };
+        AdminReportDetail: {
+            id: components["schemas"]["Id"];
+            source: components["schemas"]["ReportSource"];
+            status: components["schemas"]["ReportStatus"];
+            reason: components["schemas"]["ReportReason"];
+            details: string | null;
+            /** @description Null for automated reports. */
+            reporter: components["schemas"]["UserSummary"] | null;
+            target: components["schemas"]["ReportTargetView"];
+            /** @description Reports filed against the same target (all statuses). */
+            reportCount: number;
+            resolvedBy: components["schemas"]["UserSummary"] | null;
+            resolvedAt: components["schemas"]["IsoDateTime"] | null;
+            resolutionNote: string | null;
+            createdAt: components["schemas"]["IsoDateTime"];
+            /** @description For POST targets (or the post a comment sits on): the post as an anonymous viewer sees it. */
+            post: components["schemas"]["Post"] | null;
+            /** @description Audit trail for this target, newest first. */
+            actions: components["schemas"]["ModerationAction"][];
+        };
+        AdminReportPage: {
+            items: components["schemas"]["AdminReport"][];
+            /** @description Pass as `cursor` to fetch the next page; null when there are no more items. */
+            nextCursor: string | null;
+        };
         AuthResponse: {
             user: components["schemas"]["Me"];
             tokens: components["schemas"]["TokenPair"];
@@ -1631,6 +1979,22 @@ export interface components {
             contactEmail: string | null;
             websiteUrl: string | null;
         };
+        DataExport: {
+            id: components["schemas"]["Id"];
+            status: components["schemas"]["DataExportStatus"];
+            requestedAt: components["schemas"]["IsoDateTime"];
+            completedAt: components["schemas"]["IsoDateTime"] | null;
+            /** @description When the file is deleted. */
+            expiresAt: components["schemas"]["IsoDateTime"] | null;
+            sizeBytes: number | null;
+            /** @description Short-lived signed URL; present only while READY. Fetch the export again for a fresh one. */
+            downloadUrl: string | null;
+        };
+        DataExportList: {
+            items: components["schemas"]["DataExport"][];
+        };
+        /** @enum {string} */
+        DataExportStatus: "PENDING" | "PROCESSING" | "READY" | "FAILED" | "EXPIRED";
         DeletionStatus: {
             requestedAt: components["schemas"]["IsoDateTime"];
             scheduledFor: components["schemas"]["IsoDateTime"];
@@ -1878,6 +2242,27 @@ export interface components {
             /** @description Image: <=1080px JPEG. */
             medium: string | null;
         };
+        ModerationAction: {
+            id: components["schemas"]["Id"];
+            action: components["schemas"]["ModerationActionType"];
+            /** @description Null once the moderator account is gone. */
+            actor: components["schemas"]["UserSummary"] | null;
+            reportId: components["schemas"]["Id"] | null;
+            targetType: components["schemas"]["ReportTargetType"];
+            targetId: components["schemas"]["Id"];
+            note: string | null;
+            metadata: {
+                [key: string]: unknown;
+            };
+            createdAt: components["schemas"]["IsoDateTime"];
+        };
+        ModerationActionPage: {
+            items: components["schemas"]["ModerationAction"][];
+            /** @description Pass as `cursor` to fetch the next page; null when there are no more items. */
+            nextCursor: string | null;
+        };
+        /** @enum {string} */
+        ModerationActionType: "HIDE_CONTENT" | "REMOVE_CONTENT" | "RESTORE_CONTENT" | "SUSPEND_USER" | "UNSUSPEND_USER" | "WARN_USER" | "DISMISS_REPORT" | "SET_CREATOR_VERIFICATION";
         /** @enum {string} */
         ModerationStatus: "CLEAN" | "HIDDEN" | "REMOVED";
         /** @description Null until you create a creator profile. */
@@ -2051,6 +2436,41 @@ export interface components {
         /** @enum {string} */
         RelationshipStatus: "NONE" | "FOLLOWING" | "REQUESTED";
         /** @enum {string} */
+        ReportReason: "SPAM" | "HARASSMENT" | "HATE_SPEECH" | "VIOLENCE" | "SEXUAL_CONTENT" | "SELF_HARM" | "MINOR_SAFETY" | "IMPERSONATION" | "MISINFORMATION" | "UNDISCLOSED_SPONSORSHIP" | "COPYRIGHT" | "PRIVACY_VIOLATION" | "OTHER";
+        ReportReceipt: {
+            id: components["schemas"]["Id"];
+            targetType: components["schemas"]["ReportTargetType"];
+            targetId: components["schemas"]["Id"];
+            reason: components["schemas"]["ReportReason"];
+            status: components["schemas"]["ReportStatus"];
+            createdAt: components["schemas"]["IsoDateTime"];
+        };
+        ReportReceiptPage: {
+            items: components["schemas"]["ReportReceipt"][];
+            /** @description Pass as `cursor` to fetch the next page; null when there are no more items. */
+            nextCursor: string | null;
+        };
+        /** @enum {string} */
+        ReportSource: "USER" | "AUTOMATED";
+        /** @enum {string} */
+        ReportStatus: "OPEN" | "IN_REVIEW" | "ACTIONED" | "DISMISSED";
+        /** @enum {string} */
+        ReportTargetType: "POST" | "COMMENT" | "USER";
+        ReportTargetView: {
+            type: components["schemas"]["ReportTargetType"];
+            id: components["schemas"]["Id"];
+            /** @description Owner of the content (the user themself for USER targets). */
+            author: components["schemas"]["UserSummary"] | null;
+            /** @description Caption, comment body or profile text as it was WHEN THE REPORT WAS FILED. */
+            text: string;
+            /** @description Current state of a post/comment; null for users. */
+            moderationStatus: components["schemas"]["ModerationStatus"] | null;
+            /** @description Current account status of the owner. */
+            userStatus: components["schemas"]["UserStatus"] | null;
+            /** @description False once the content has been deleted by its author. */
+            exists: boolean;
+        };
+        /** @enum {string} */
         RoutePrivacy: "FULL" | "TRIMMED" | "APPROXIMATE" | "HIDDEN";
         RouteView: {
             /** @description Encoded polylines (Google format, precision 5). Usually one; several when parts of the route were hidden (privacy zones / trimmed ends). Draw each separately; never join them. */
@@ -2066,6 +2486,12 @@ export interface components {
             };
             /** @description True when some of the original route is withheld from this viewer. */
             isPrivacyFiltered: boolean;
+        };
+        /** @description Top 5 of each kind, for the first screen of results. Use the typed endpoints to page. */
+        SearchOverview: {
+            users: components["schemas"]["UserSummary"][];
+            topics: components["schemas"]["TopicResult"][];
+            posts: components["schemas"]["Post"][];
         };
         SessionList: {
             items: components["schemas"]["SessionView"][];
@@ -2172,6 +2598,20 @@ export interface components {
                 }[];
             };
         };
+        SuggestedAthlete: {
+            user: components["schemas"]["UserSummary"];
+            reason: components["schemas"]["SuggestionReason"];
+            /** @description How many people you follow also follow them (0 unless FOLLOWED_BY_FOLLOWING). */
+            mutualFollowers: number;
+            primarySport: components["schemas"]["SportKey"] | null;
+        };
+        SuggestedAthletePage: {
+            items: components["schemas"]["SuggestedAthlete"][];
+            /** @description Pass as `cursor` to fetch the next page; null when there are no more items. */
+            nextCursor: string | null;
+        };
+        /** @enum {string} */
+        SuggestionReason: "FOLLOWED_BY_FOLLOWING" | "SAME_SPORT" | "CREATOR" | "POPULAR";
         TokenPair: {
             /** @constant */
             tokenType: "Bearer";
@@ -2181,6 +2621,27 @@ export interface components {
             /** @description Opaque, single-use. Exchange via POST /v1/auth/refresh; store only in secure storage. */
             refreshToken: string;
             refreshTokenExpiresAt: components["schemas"]["IsoDateTime"];
+        };
+        TopicPage: {
+            items: components["schemas"]["TopicResult"][];
+            /** @description Pass as `cursor` to fetch the next page; null when there are no more items. */
+            nextCursor: string | null;
+        };
+        TopicResult: {
+            /** @description Lower-case, without the "#". */
+            slug: string;
+            /** @description Public posts using the topic, capped at 1000 (display as "1000+"). */
+            postCount: number;
+        };
+        TrendingTopic: {
+            slug: string;
+            /** @description Public posts using the topic in the last 7 days. */
+            postCount: number;
+            /** @description Distinct authors who used it in the last 7 days. */
+            authorCount: number;
+        };
+        TrendingTopics: {
+            items: components["schemas"]["TrendingTopic"][];
         };
         /** @enum {string} */
         UnitSystem: "METRIC" | "IMPERIAL";
@@ -2205,6 +2666,11 @@ export interface components {
         };
         /** @enum {string} */
         UserRole: "USER" | "MODERATOR" | "ADMIN";
+        UserSearchPage: {
+            items: components["schemas"]["UserSummary"][];
+            /** @description Pass as `cursor` to fetch the next page; null when there are no more items. */
+            nextCursor: string | null;
+        };
         /** @enum {string} */
         UserStatus: "ACTIVE" | "SUSPENDED" | "PENDING_DELETION";
         UserSummary: {
@@ -7030,6 +7496,1026 @@ export interface operations {
             };
             /** @description Default Response */
             429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    search: {
+        parameters: {
+            query: {
+                /** @description Search text, 2-100 characters. A leading "#" or "@" is ignored. */
+                q: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Default Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SearchOverview"];
+                };
+            };
+            /** @description Default Response */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Default Response */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Default Response */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Default Response */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    searchUsers: {
+        parameters: {
+            query: {
+                /** @description Page size, 1..50. */
+                limit?: number;
+                /** @description Opaque cursor from the previous page's `nextCursor`. Never construct one yourself. */
+                cursor?: string;
+                /** @description Search text, 2-100 characters. A leading "#" or "@" is ignored. */
+                q: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Default Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UserSearchPage"];
+                };
+            };
+            /** @description Default Response */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Default Response */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Default Response */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Default Response */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    searchPosts: {
+        parameters: {
+            query: {
+                /** @description Page size, 1..50. */
+                limit?: number;
+                /** @description Opaque cursor from the previous page's `nextCursor`. Never construct one yourself. */
+                cursor?: string;
+                /** @description Search text, 2-100 characters. A leading "#" or "@" is ignored. */
+                q: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Default Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PostPage"];
+                };
+            };
+            /** @description Default Response */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Default Response */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Default Response */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Default Response */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    searchTopics: {
+        parameters: {
+            query: {
+                /** @description Page size, 1..50. */
+                limit?: number;
+                /** @description Opaque cursor from the previous page's `nextCursor`. Never construct one yourself. */
+                cursor?: string;
+                /** @description Search text, 2-100 characters. A leading "#" or "@" is ignored. */
+                q: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Default Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TopicPage"];
+                };
+            };
+            /** @description Default Response */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Default Response */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Default Response */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Default Response */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    suggestAthletes: {
+        parameters: {
+            query?: {
+                /** @description Page size, 1..50. */
+                limit?: number;
+                /** @description Opaque cursor from the previous page's `nextCursor`. Never construct one yourself. */
+                cursor?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Default Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SuggestedAthletePage"];
+                };
+            };
+            /** @description Default Response */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Default Response */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Default Response */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    listTrendingTopics: {
+        parameters: {
+            query?: {
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Default Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TrendingTopics"];
+                };
+            };
+            /** @description Default Response */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Default Response */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Default Response */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    getTopic: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                slug: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Default Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TopicResult"];
+                };
+            };
+            /** @description Default Response */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Default Response */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Default Response */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    listTopicPosts: {
+        parameters: {
+            query?: {
+                /** @description Page size, 1..50. */
+                limit?: number;
+                /** @description Opaque cursor from the previous page's `nextCursor`. Never construct one yourself. */
+                cursor?: string;
+            };
+            header?: never;
+            path: {
+                slug: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Default Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PostPage"];
+                };
+            };
+            /** @description Default Response */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Default Response */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Default Response */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Default Response */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    createReport: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    targetType: components["schemas"]["ReportTargetType"];
+                    targetId: components["schemas"]["Id"];
+                    reason: components["schemas"]["ReportReason"];
+                    details?: string;
+                };
+            };
+        };
+        responses: {
+            /** @description Default Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReportReceipt"];
+                };
+            };
+            /** @description Default Response */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Default Response */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Default Response */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Default Response */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Default Response */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Default Response */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    listMyReports: {
+        parameters: {
+            query?: {
+                /** @description Page size, 1..50. */
+                limit?: number;
+                /** @description Opaque cursor from the previous page's `nextCursor`. Never construct one yourself. */
+                cursor?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Default Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReportReceiptPage"];
+                };
+            };
+            /** @description Default Response */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Default Response */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    adminListReports: {
+        parameters: {
+            query?: {
+                /** @description Page size, 1..50. */
+                limit?: number;
+                /** @description Opaque cursor from the previous page's `nextCursor`. Never construct one yourself. */
+                cursor?: string;
+                status?: components["schemas"]["ReportStatus"];
+                targetType?: components["schemas"]["ReportTargetType"];
+                source?: components["schemas"]["ReportSource"];
+                reason?: components["schemas"]["ReportReason"];
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Default Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminReportPage"];
+                };
+            };
+            /** @description Default Response */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Default Response */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Default Response */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    adminGetReport: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: components["schemas"]["Id"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Default Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminReportDetail"];
+                };
+            };
+            /** @description Default Response */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Default Response */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Default Response */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    adminResolveReport: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: components["schemas"]["Id"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    /** @enum {string} */
+                    action: "HIDE_CONTENT" | "REMOVE_CONTENT" | "WARN_USER" | "SUSPEND_USER" | "DISMISS_REPORT";
+                    note?: string;
+                };
+            };
+        };
+        responses: {
+            /** @description Default Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminReportDetail"];
+                };
+            };
+            /** @description Default Response */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Default Response */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Default Response */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Default Response */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Default Response */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    adminListActions: {
+        parameters: {
+            query?: {
+                /** @description Page size, 1..50. */
+                limit?: number;
+                /** @description Opaque cursor from the previous page's `nextCursor`. Never construct one yourself. */
+                cursor?: string;
+                targetType?: components["schemas"]["ReportTargetType"];
+                targetId?: components["schemas"]["Id"];
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Default Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ModerationActionPage"];
+                };
+            };
+            /** @description Default Response */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Default Response */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Default Response */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    adminTakeAction: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    /** @enum {string} */
+                    action: "HIDE_CONTENT" | "REMOVE_CONTENT" | "RESTORE_CONTENT" | "SUSPEND_USER" | "UNSUSPEND_USER" | "WARN_USER" | "SET_CREATOR_VERIFICATION";
+                    targetType: components["schemas"]["ReportTargetType"];
+                    targetId: components["schemas"]["Id"];
+                    note: string;
+                    verificationStatus?: components["schemas"]["VerificationStatus"];
+                };
+            };
+        };
+        responses: {
+            /** @description Default Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ModerationAction"];
+                };
+            };
+            /** @description Default Response */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Default Response */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Default Response */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Default Response */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Default Response */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    listDataExports: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Default Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DataExportList"];
+                };
+            };
+            /** @description Default Response */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    requestDataExport: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    /** @description Your current password (re-authentication). */
+                    password: string;
+                };
+            };
+        };
+        responses: {
+            /** @description Default Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DataExport"];
+                };
+            };
+            /** @description Default Response */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Default Response */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Default Response */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    getDataExport: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: components["schemas"]["Id"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Default Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DataExport"];
+                };
+            };
+            /** @description Default Response */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Default Response */
+            404: {
                 headers: {
                     [name: string]: unknown;
                 };

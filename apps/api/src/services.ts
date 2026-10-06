@@ -5,6 +5,12 @@ import { DbEventRecorder } from './modules/events/db-recorder';
 import { EventIngestionService } from './modules/events/ingestion';
 import { FeedAnalytics } from './modules/feed/analytics';
 import { FeedService } from './modules/feed/service';
+import { AccountPurger } from './flows/purge-account';
+import { ExportService } from './modules/exports/service';
+import { DiscoveryService } from './modules/discovery/service';
+import { PostgresSearchProvider } from './modules/search/postgres';
+import type { SearchProvider } from './modules/search/provider';
+import { SearchService } from './modules/search/service';
 import type { EventRecorder } from './modules/events/recorder';
 import { NotificationService } from './modules/notifications/service';
 import { PostHydrator } from './modules/posts/hydrator';
@@ -24,7 +30,11 @@ import { AgePolicy } from './modules/users/age-policy';
 import { UserDirectory } from './modules/users/directory';
 import { UserRepository } from './modules/users/repository';
 import type { PlatformContext } from './platform/context';
-import { AllowAllModerator, type ContentModerator } from './platform/ports/content-moderation';
+import type { ContentModerator, ModerationFlagSink } from './platform/ports/content-moderation';
+import { KeywordModerator } from './platform/ports/keyword-moderator';
+import { DbFlagSink } from './modules/moderation/flags';
+import { ModerationService } from './modules/moderation/service';
+import { ReportService } from './modules/moderation/reports';
 import { LoggingPushProvider, type PushProvider } from './platform/ports/push';
 import { LocalStorage } from './platform/storage/local';
 import { S3Storage } from './platform/storage/s3';
@@ -66,6 +76,12 @@ export interface Services {
   readonly eventIngestion: EventIngestionService;
   readonly feed: FeedService;
   readonly feedAnalytics: FeedAnalytics;
+  readonly search: SearchService;
+  readonly reports: ReportService;
+  readonly dataExports: ExportService;
+  readonly accountPurger: AccountPurger;
+  readonly moderation: ModerationService;
+  readonly discovery: DiscoveryService;
   readonly engagement: EngagementService;
   readonly notifications: NotificationService;
   readonly flows: ActivityFlows;
@@ -76,6 +92,7 @@ export interface ServiceOverrides {
   storage?: ObjectStorage;
   moderator?: ContentModerator;
   push?: PushProvider;
+  search?: SearchProvider;
 }
 
 export function createServices(
@@ -119,12 +136,25 @@ export function createServices(
           config.PUBLIC_BASE_URL,
           clock,
         ));
-  const moderator = overrides.moderator ?? new AllowAllModerator();
+  const moderator =
+    overrides.moderator ??
+    new KeywordModerator(config.MODERATION_BLOCK_TERMS, config.MODERATION_FLAG_TERMS);
+  const flags: ModerationFlagSink = new DbFlagSink(db, clock, logger);
   const ffmpeg = new Ffmpeg(config.FFMPEG_PATH, config.FFPROBE_PATH);
   const media = new MediaService(config, db, clock, storage, jobs, ffmpeg, moderator, logger);
   directory.setAvatarResolver(media.resolveAvatars);
   const creators = new CreatorService(db, clock);
-  const profiles = new ProfileService(config, db, clock, directory, social, media, creators);
+  const profiles = new ProfileService(
+    config,
+    db,
+    clock,
+    directory,
+    social,
+    media,
+    creators,
+    moderator,
+    flags,
+  );
   const agePolicy = new AgePolicy(config, db, clock);
   const activities = new ActivityService(db, clock, sports, directory, agePolicy);
   const integrations = new IntegrationService(db);
@@ -138,6 +168,7 @@ export function createServices(
     moderator,
     notifier,
     postHydrator,
+    flags,
   );
   const idempotency = new IdempotencyService(db, clock);
   const engagement = new EngagementService(
@@ -148,6 +179,7 @@ export function createServices(
     notifier,
     moderator,
     events,
+    flags,
   );
   const push = overrides.push ?? new LoggingPushProvider(logger);
   const notifications = new NotificationService(db, directory, media, push);
@@ -155,6 +187,13 @@ export function createServices(
   const eventIngestion = new EventIngestionService(db, clock);
   const feed = new FeedService(config, db, clock, postHydrator, agePolicy, logger);
   const feedAnalytics = new FeedAnalytics(config, db, clock, logger);
+  const reports = new ReportService(db, clock);
+  const moderation = new ModerationService(db, clock, directory, postHydrator, notifier);
+  const dataExports = new ExportService(db, clock, jobs, storage, users, logger);
+  const accountPurger = new AccountPurger(db, clock, jobs, logger);
+  const searchProvider = overrides.search ?? new PostgresSearchProvider(db);
+  const search = new SearchService(config, db, clock, searchProvider, directory, postHydrator);
+  const discovery = new DiscoveryService(config, db, clock, directory, postHydrator);
 
   return {
     platform,
@@ -180,6 +219,12 @@ export function createServices(
     eventIngestion,
     feed,
     feedAnalytics,
+    search,
+    discovery,
+    reports,
+    dataExports,
+    accountPurger,
+    moderation,
     engagement,
     notifications,
     flows,

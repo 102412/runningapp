@@ -15,7 +15,11 @@ import { isUniqueViolation } from '../../platform/db/errors';
 import { keysetBefore, timestampText } from '../../platform/db/keyset';
 import { AppError } from '../../platform/errors';
 import { decodeCursor, encodeCursor, sliceProbe } from '../../platform/http/cursor';
-import type { ContentModerator } from '../../platform/ports/content-moderation';
+import type {
+  ContentModerator,
+  ModerationFlagSink,
+  ModerationVerdict,
+} from '../../platform/ports/content-moderation';
 import type { ActivityService } from '../activities/service';
 import type { MediaService } from '../media/service';
 import type { Notifier } from '../notifier';
@@ -46,6 +50,7 @@ export class PostService {
     private readonly moderator: ContentModerator,
     private readonly notifier: Notifier,
     private readonly hydrator: PostHydrator,
+    private readonly flags: ModerationFlagSink,
   ) {}
 
   // ------------------------------------------------------------------ create
@@ -54,7 +59,7 @@ export class PostService {
     const caption = (input.caption ?? '').trim();
     const mediaIds = [...new Set(input.mediaIds ?? [])];
     if (!caption && !input.activityId && mediaIds.length === 0) throw new AppError('EMPTY_POST');
-    await this.assertCaptionAllowed(caption);
+    const verdict = await this.assertCaptionAllowed(caption);
 
     const settings = await this.db
       .selectFrom('userSettings')
@@ -105,25 +110,40 @@ export class PostService {
       if (status === 'PUBLISHED') await this.afterPublished(trx, post.id, userId, null);
       return post.id;
     });
+    await this.flagIfNeeded(verdict, postId, caption);
     return this.get(userId, postId);
   }
 
-  /** Guard shared by create/update: automated text moderation may refuse a caption outright. */
-  private async assertCaptionAllowed(caption: string): Promise<void> {
-    if (!caption) return;
+  /**
+   * Guard shared by create/update: automated text moderation may refuse a caption outright (BLOCK).
+   * A FLAG verdict lets the post through but is returned so the caller can queue it for review.
+   */
+  private async assertCaptionAllowed(caption: string): Promise<ModerationVerdict> {
+    if (!caption) return { verdict: 'ALLOW' };
     const verdict = await this.moderator.moderateText({ text: caption, context: 'CAPTION' });
     if (verdict.verdict === 'BLOCK') {
       throw new AppError('CONTENT_REJECTED', {
         details: [{ path: 'caption', message: verdict.reason }],
       });
     }
+    return verdict;
+  }
+
+  private async flagIfNeeded(
+    verdict: ModerationVerdict,
+    postId: string,
+    text: string,
+  ): Promise<void> {
+    if (verdict.verdict !== 'FLAG') return;
+    await this.flags.flag({ targetType: 'POST', targetId: postId, reason: verdict.reason, text });
   }
 
   // ------------------------------------------------------------------ update / publish / delete
 
   async update(userId: string, id: string, patch: UpdatePostRequest): Promise<Post> {
     const caption = patch.caption === undefined ? undefined : patch.caption.trim();
-    if (caption !== undefined) await this.assertCaptionAllowed(caption);
+    const verdict: ModerationVerdict =
+      caption === undefined ? { verdict: 'ALLOW' } : await this.assertCaptionAllowed(caption);
     if (patch.visibility !== undefined)
       await this.agePolicy.assertVisibilityAllowed(userId, patch.visibility);
 
@@ -175,6 +195,7 @@ export class PostService {
         await this.upsertSponsorship(trx, id, patch.sponsorship);
       }
     });
+    if (caption !== undefined) await this.flagIfNeeded(verdict, id, caption);
     return this.get(userId, id);
   }
 

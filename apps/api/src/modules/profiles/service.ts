@@ -10,6 +10,7 @@ import type { Clock } from '../../platform/clock';
 import type { Db } from '../../platform/db/client';
 import { isUniqueViolation } from '../../platform/db/errors';
 import { AppError } from '../../platform/errors';
+import type { ContentModerator, ModerationFlagSink } from '../../platform/ports/content-moderation';
 import { loadRelations } from '../social/relations';
 import type { SocialService } from '../social/service';
 import { accountVisibleTo } from '../social/visibility';
@@ -32,6 +33,8 @@ export class ProfileService {
     private readonly social: SocialService,
     private readonly media: MediaService,
     private readonly creators: CreatorService,
+    private readonly moderator: ContentModerator,
+    private readonly flags: ModerationFlagSink,
   ) {}
 
   // ------------------------------------------------------------------ reads
@@ -196,6 +199,23 @@ export class ProfileService {
         if (!caseOnly) set.usernameChangedAt = now;
       }
     }
+    // Automated review of the free text people can set on their profile.
+    let flagged: string | null = null;
+    for (const [text, context, path] of [
+      [patch.username, 'USERNAME', 'username'],
+      [patch.displayName, 'USERNAME', 'displayName'],
+      [patch.bio, 'BIO', 'bio'],
+    ] as const) {
+      if (!text) continue;
+      const verdict = await this.moderator.moderateText({ text, context });
+      if (verdict.verdict === 'BLOCK') {
+        throw new AppError('CONTENT_REJECTED', {
+          details: [{ path, message: verdict.reason }],
+        });
+      }
+      if (verdict.verdict === 'FLAG') flagged = verdict.reason;
+    }
+
     if (patch.displayName !== undefined) set.displayName = patch.displayName;
     if (patch.bio !== undefined) set.bio = patch.bio;
     if (patch.locationLabel !== undefined)
@@ -209,6 +229,14 @@ export class ProfileService {
         if (isUniqueViolation(err, 'profiles_username_key')) throw new AppError('USERNAME_TAKEN');
         throw err;
       }
+    }
+    if (flagged) {
+      await this.flags.flag({
+        targetType: 'USER',
+        targetId: userId,
+        reason: flagged,
+        text: [patch.username, patch.displayName, patch.bio].filter(Boolean).join('\n'),
+      });
     }
     return this.getProfile(userId, { id: userId });
   }

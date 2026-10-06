@@ -206,7 +206,11 @@ export async function localStorageRoutes(app: FastifyInstance, s: Services): Pro
       );
       void reply.header('cache-control', `private, max-age=${remaining}, immutable`);
       void reply.header('accept-ranges', 'bytes');
-      void reply.header('content-disposition', 'inline');
+      // Personal data exports download as files; everything else is shown inline.
+      void reply.header(
+        'content-disposition',
+        key.startsWith('exports/') ? 'attachment; filename="runningapp-export.json"' : 'inline',
+      );
 
       const range = parseRange(req.headers.range, info.sizeBytes);
       if (range === 'INVALID') {

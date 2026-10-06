@@ -19,6 +19,8 @@ export type ContentVisibility = "FOLLOWERS" | "PRIVATE" | "PUBLIC";
 
 export type CreatorCategory = "BRAND" | "CLUB_OR_TEAM" | "COACH" | "CONTENT_CREATOR" | "PROFESSIONAL_ATHLETE";
 
+export type DataExportStatus = "EXPIRED" | "FAILED" | "PENDING" | "PROCESSING" | "READY";
+
 export type DevicePlatform = "ANDROID" | "IOS" | "WEB";
 
 export type FeedEventType = "ACTIVITY_OPEN" | "BOOKMARK" | "COMMENT" | "FOLLOW" | "IMPRESSION" | "LIKE" | "MEDIA_EXPAND" | "NOT_INTERESTED" | "PROFILE_OPEN" | "SHARE" | "SKIP" | "TOPIC_INTERACTION" | "UNBOOKMARK" | "UNFOLLOW" | "UNLIKE" | "VIDEO_COMPLETE" | "VIDEO_START" | "WATCH_TIME";
@@ -57,6 +59,8 @@ export type MediaStatus = "FAILED" | "PENDING_UPLOAD" | "PROCESSING" | "READY" |
 
 export type MediaVariantKind = "IMAGE_LARGE" | "IMAGE_MEDIUM" | "IMAGE_THUMB" | "POSTER" | "POSTER_THUMB" | "VIDEO_MP4_HIGH" | "VIDEO_MP4_LOW";
 
+export type ModerationActionType = "DISMISS_REPORT" | "HIDE_CONTENT" | "REMOVE_CONTENT" | "RESTORE_CONTENT" | "SET_CREATOR_VERIFICATION" | "SUSPEND_USER" | "UNSUSPEND_USER" | "WARN_USER";
+
 export type ModerationStatus = "CLEAN" | "HIDDEN" | "REMOVED";
 
 export type NotificationType = "COMMENT_REACTION" | "COMMENT_REPLY" | "FOLLOW_ACCEPTED" | "FOLLOW_REQUEST" | "MENTION_COMMENT" | "MENTION_POST" | "MODERATION_ACTION" | "NEW_FOLLOWER" | "POST_COMMENT" | "POST_PUBLISH_FAILED" | "POST_PUBLISHED" | "POST_REACTION";
@@ -74,6 +78,14 @@ export type PushProvider = "APNS" | "EXPO" | "FCM";
 export type ReactionType = "CLAP" | "FIRE" | "LIKE" | "STRONG";
 
 export type RecordType = "BIGGEST_CLIMB" | "FASTEST_10K" | "FASTEST_5K" | "FASTEST_HALF_MARATHON" | "FASTEST_MARATHON" | "LONGEST_DISTANCE" | "LONGEST_DURATION";
+
+export type ReportReason = "COPYRIGHT" | "HARASSMENT" | "HATE_SPEECH" | "IMPERSONATION" | "MINOR_SAFETY" | "MISINFORMATION" | "OTHER" | "PRIVACY_VIOLATION" | "SELF_HARM" | "SEXUAL_CONTENT" | "SPAM" | "UNDISCLOSED_SPONSORSHIP" | "VIOLENCE";
+
+export type ReportSource = "AUTOMATED" | "USER";
+
+export type ReportStatus = "ACTIONED" | "DISMISSED" | "IN_REVIEW" | "OPEN";
+
+export type ReportTargetType = "COMMENT" | "POST" | "USER";
 
 export type RoutePrivacy = "APPROXIMATE" | "FULL" | "HIDDEN" | "TRIMMED";
 
@@ -246,6 +258,18 @@ export interface CreatorProfiles {
   websiteUrl: string | null;
 }
 
+export interface DataExports {
+  completedAt: Timestamp | null;
+  error: string | null;
+  expiresAt: Timestamp | null;
+  id: Generated<string>;
+  requestedAt: Generated<Timestamp>;
+  sizeBytes: number | null;
+  status: Generated<DataExportStatus>;
+  storageKey: string | null;
+  userId: string;
+}
+
 export interface Devices {
   appVersion: string | null;
   createdAt: Generated<Timestamp>;
@@ -415,6 +439,20 @@ export interface MediaVariants {
   width: number | null;
 }
 
+export interface ModerationActions {
+  action: ModerationActionType;
+  actorId: string;
+  createdAt: Generated<Timestamp>;
+  id: Generated<string>;
+  metadata: Generated<Json>;
+  note: string | null;
+  reportId: string | null;
+  targetCommentId: string | null;
+  targetPostId: string | null;
+  targetType: ReportTargetType;
+  targetUserId: string | null;
+}
+
 export interface NotificationPreferences {
   inApp: Generated<boolean>;
   push: Generated<boolean>;
@@ -552,6 +590,24 @@ export interface RefreshTokens {
   usedAt: Timestamp | null;
 }
 
+export interface Reports {
+  createdAt: Generated<Timestamp>;
+  details: string | null;
+  id: Generated<string>;
+  reason: ReportReason;
+  reporterId: string | null;
+  resolutionNote: string | null;
+  resolvedAt: Timestamp | null;
+  resolvedBy: string | null;
+  snapshot: Generated<Json>;
+  source: Generated<ReportSource>;
+  status: Generated<ReportStatus>;
+  targetCommentId: string | null;
+  targetPostId: string | null;
+  targetType: ReportTargetType;
+  targetUserId: string | null;
+}
+
 export interface Sessions {
   createdAt: Generated<Timestamp>;
   deviceId: string | null;
@@ -677,6 +733,7 @@ export interface DB {
   commentReactions: CommentReactions;
   comments: Comments;
   creatorProfiles: CreatorProfiles;
+  dataExports: DataExports;
   devices: Devices;
   devMailOutbox: DevMailOutbox;
   feedEvents: FeedEvents;
@@ -691,6 +748,7 @@ export interface DB {
   loginThrottles: LoginThrottles;
   mediaAssets: MediaAssets;
   mediaVariants: MediaVariants;
+  moderationActions: ModerationActions;
   notificationPreferences: NotificationPreferences;
   notifications: Notifications;
   oauthIdentities: OauthIdentities;
@@ -704,6 +762,7 @@ export interface DB {
   profiles: Profiles;
   recommendationEvents: RecommendationEvents;
   refreshTokens: RefreshTokens;
+  reports: Reports;
   sessions: Sessions;
   shares: Shares;
   sponsorshipDisclosures: SponsorshipDisclosures;

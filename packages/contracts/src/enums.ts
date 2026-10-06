@@ -353,6 +353,14 @@ export const DataExportStatus = defineEnum('DataExportStatus', [
 ]);
 export type DataExportStatus = z.infer<typeof DataExportStatus.schema>;
 
+export const SuggestionReason = defineEnum('SuggestionReason', [
+  'FOLLOWED_BY_FOLLOWING',
+  'SAME_SPORT',
+  'CREATOR',
+  'POPULAR',
+]);
+export type SuggestionReason = z.infer<typeof SuggestionReason.schema>;
+
 export const SportRelation = defineEnum('SportRelation', ['PARTICIPANT', 'FOLLOWER']);
 export type SportRelation = z.infer<typeof SportRelation.schema>;
 

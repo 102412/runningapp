@@ -31,13 +31,7 @@ export interface TestAppOptions {
 /** Creates an isolated database from the template and a fully wired app against it. */
 export async function createTestApp(options: TestAppOptions = {}): Promise<TestApp> {
   const dbName = `runningapp_test_${randomBytes(6).toString('hex')}`;
-  const admin = new pg.Client({ connectionString: adminUrl() });
-  await admin.connect();
-  try {
-    await admin.query(`create database "${dbName}" template ${TEMPLATE_DB}`);
-  } finally {
-    await admin.end();
-  }
+  await createFromTemplate(dbName);
 
   const config = loadConfig({
     NODE_ENV: 'test',
@@ -77,4 +71,25 @@ export async function createTestApp(options: TestAppOptions = {}): Promise<TestA
       }
     },
   };
+}
+
+/**
+ * CREATE DATABASE ... TEMPLATE fails with "source database is being accessed by other users" when
+ * another worker is copying the same template at that instant. That is transient: retry briefly.
+ */
+async function createFromTemplate(dbName: string): Promise<void> {
+  for (let attempt = 1; ; attempt++) {
+    const admin = new pg.Client({ connectionString: adminUrl() });
+    await admin.connect();
+    try {
+      await admin.query(`create database "${dbName}" template ${TEMPLATE_DB}`);
+      return;
+    } catch (err) {
+      const busy = (err as { code?: string }).code === '55006';
+      if (!busy || attempt >= 8) throw err;
+      await new Promise((resolve) => setTimeout(resolve, 100 * attempt + Math.random() * 200));
+    } finally {
+      await admin.end();
+    }
+  }
 }

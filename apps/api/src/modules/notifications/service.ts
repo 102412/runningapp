@@ -49,7 +49,9 @@ export class NotificationService {
       )
       .where(sql<boolean>`(n.post_id is null or ${postReadableBy(userId)})`)
       .where(
-        sql<boolean>`(n.comment_id is null or (c.deleted_at is null and c.moderation_status = 'CLEAN'))`,
+        // A moderation notice must stay visible to the author even though the comment it is
+        // about has just been hidden or removed.
+        sql<boolean>`(n.comment_id is null or n.type = 'MODERATION_ACTION' or (c.deleted_at is null and c.moderation_status = 'CLEAN'))`,
       );
   }
 

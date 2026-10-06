@@ -159,6 +159,7 @@ export async function buildApp(
           { name: 'Feed' },
           { name: 'Events' },
           { name: 'Search' },
+          { name: 'Discover' },
           { name: 'Creators' },
           { name: 'Moderation' },
           { name: 'Admin' },

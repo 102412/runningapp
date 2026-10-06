@@ -108,6 +108,8 @@ const envSchema = z.object({
   ANALYTICS_RETENTION_DAYS: z.coerce.number().int().min(7).max(1095).default(180),
   /** Comma-separated terms that make the baseline text moderator FLAG content. */
   MODERATION_FLAG_TERMS: csv.default([]),
+  /** Comma-separated terms that make the baseline text moderator REJECT content outright. */
+  MODERATION_BLOCK_TERMS: csv.default([]),
 });
 
 export type Config = Readonly<z.output<typeof envSchema>> & {

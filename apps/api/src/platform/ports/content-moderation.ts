@@ -26,3 +26,17 @@ export class AllowAllModerator implements ContentModerator {
     return { verdict: 'ALLOW' };
   }
 }
+
+/**
+ * Where automated moderation sends content it wants a human to look at (verdict FLAG). The
+ * default implementation files an AUTOMATED report in the moderation queue.
+ */
+export interface ModerationFlagSink {
+  flag(input: {
+    targetType: 'POST' | 'COMMENT' | 'USER';
+    targetId: string;
+    reason: string;
+    /** The flagged text, kept with the report in case it is edited or deleted later. */
+    text: string;
+  }): Promise<void>;
+}

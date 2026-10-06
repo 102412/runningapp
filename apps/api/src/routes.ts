@@ -1,11 +1,15 @@
 import type { FastifyInstance } from 'fastify';
 import { activityRoutes } from './modules/activities/routes';
 import { creatorRoutes } from './modules/creators/routes';
+import { discoveryRoutes } from './modules/discovery/routes';
 import { engagementRoutes } from './modules/engagement/routes';
+import { exportRoutes } from './modules/exports/routes';
 import { eventRoutes } from './modules/events/routes';
 import { feedRoutes } from './modules/feed/routes';
+import { moderationRoutes } from './modules/moderation/routes';
 import { notificationRoutes } from './modules/notifications/routes';
 import { postRoutes } from './modules/posts/routes';
+import { searchRoutes } from './modules/search/routes';
 import { authRoutes } from './modules/auth/routes';
 import { devRoutes } from './modules/dev/routes';
 import { localStorageRoutes, mediaRoutes } from './modules/media/routes';
@@ -28,6 +32,10 @@ export async function registerModules(app: FastifyInstance, services: Services):
   await app.register(async (scope) => notificationRoutes(scope, services));
   await app.register(async (scope) => feedRoutes(scope, services));
   await app.register(async (scope) => eventRoutes(scope, services));
+  await app.register(async (scope) => searchRoutes(scope, services));
+  await app.register(async (scope) => discoveryRoutes(scope, services));
+  await app.register(async (scope) => moderationRoutes(scope, services));
+  await app.register(async (scope) => exportRoutes(scope, services));
   await app.register(async (scope) => localStorageRoutes(scope, services));
   if (services.platform.config.DEV_ENDPOINTS_ENABLED) {
     await app.register(async (scope) => devRoutes(scope, services));
