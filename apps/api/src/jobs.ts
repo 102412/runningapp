@@ -4,6 +4,7 @@ import {
   MediaProcessJob,
   MediaStatusChangedJob,
 } from './modules/media/service';
+import { PushNotificationJob } from './modules/notifier';
 import { SendEmailJob } from './platform/mail/service';
 import { z } from 'zod';
 import { PurgeFinishedJobsJob, purgeFinishedJobsHandler } from './platform/jobs/maintenance';
@@ -30,6 +31,7 @@ export function registerJobs(services: Services): { registry: JobRegistry; sched
   registry.register(MediaCleanupJob, services.media.handleCleanup);
   registry.register(MediaStatusChangedJob, services.posts.handleMediaStatusChanged);
   registry.register(PurgeDeletedPostsJob, services.posts.handlePurgeDeleted);
+  registry.register(PushNotificationJob, services.notifications.handlePush);
 
   const schedules: Schedule[] = [
     { spec: PurgeFinishedJobsJob, payload: {}, everySeconds: 3600 },

@@ -6,7 +6,7 @@ import { buildApp } from '../../src/app';
 import { loadConfig, type Config } from '../../src/config';
 import { ManualClock } from '../../src/platform/clock';
 import { createPlatform, type PlatformHandle } from '../../src/platform/create';
-import { createServices, type Services } from '../../src/services';
+import { createServices, type ServiceOverrides, type Services } from '../../src/services';
 import { adminUrl, TEMPLATE_DB, withDatabase } from './db-urls';
 
 export interface TestApp {
@@ -24,6 +24,8 @@ export interface TestAppOptions {
   clock?: ManualClock;
   /** Called for every SQL statement executed (used to assert query counts / N+1). */
   onQuery?: (event: LogEvent) => void;
+  /** Replace adapters (mailer, storage, moderator, push) with test doubles. */
+  overrides?: ServiceOverrides;
 }
 
 /** Creates an isolated database from the template and a fully wired app against it. */
@@ -52,7 +54,7 @@ export async function createTestApp(options: TestAppOptions = {}): Promise<TestA
   });
   const clock = options.clock ?? new ManualClock(new Date());
   const platform = createPlatform(config, { clock, onQuery: options.onQuery });
-  const services = createServices(platform);
+  const services = createServices(platform, options.overrides);
   const app = await buildApp(platform, services);
   await app.ready();
 

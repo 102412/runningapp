@@ -1,5 +1,8 @@
 import { ActivityFlows } from './flows/log-activity';
 import { CreatorService } from './modules/creators/service';
+import { EngagementService } from './modules/engagement/service';
+import { NoopEventRecorder, type EventRecorder } from './modules/events/recorder';
+import { NotificationService } from './modules/notifications/service';
 import { PostHydrator } from './modules/posts/hydrator';
 import { PostService } from './modules/posts/service';
 import { IdempotencyService } from './platform/http/idempotency';
@@ -18,6 +21,7 @@ import { UserDirectory } from './modules/users/directory';
 import { UserRepository } from './modules/users/repository';
 import type { PlatformContext } from './platform/context';
 import { AllowAllModerator, type ContentModerator } from './platform/ports/content-moderation';
+import { LoggingPushProvider, type PushProvider } from './platform/ports/push';
 import { LocalStorage } from './platform/storage/local';
 import { S3Storage } from './platform/storage/s3';
 import type { ObjectStorage } from './platform/storage/types';
@@ -54,6 +58,9 @@ export interface Services {
   readonly postHydrator: PostHydrator;
   readonly posts: PostService;
   readonly idempotency: IdempotencyService;
+  readonly events: EventRecorder;
+  readonly engagement: EngagementService;
+  readonly notifications: NotificationService;
   readonly flows: ActivityFlows;
 }
 
@@ -61,6 +68,7 @@ export interface ServiceOverrides {
   mailer?: Mailer;
   storage?: ObjectStorage;
   moderator?: ContentModerator;
+  push?: PushProvider;
 }
 
 export function createServices(
@@ -76,7 +84,7 @@ export function createServices(
       : new ConsoleMailer(db, logger));
   const mail = new MailService(config, jobs, mailer);
 
-  const notifier = new DbNotifier(db);
+  const notifier = new DbNotifier(db, jobs);
   const users = new UserRepository(db);
   const directory = new UserDirectory(db);
   const accessTokens = new AccessTokenService(config, clock);
@@ -124,6 +132,18 @@ export function createServices(
     postHydrator,
   );
   const idempotency = new IdempotencyService(db, clock);
+  const events: EventRecorder = new NoopEventRecorder();
+  const engagement = new EngagementService(
+    db,
+    posts,
+    postHydrator,
+    directory,
+    notifier,
+    moderator,
+    events,
+  );
+  const push = overrides.push ?? new LoggingPushProvider(logger);
+  const notifications = new NotificationService(db, directory, media, push);
   const flows = new ActivityFlows(config, db, activities, posts);
 
   return {
@@ -146,6 +166,9 @@ export function createServices(
     postHydrator,
     posts,
     idempotency,
+    events,
+    engagement,
+    notifications,
     flows,
   };
 }

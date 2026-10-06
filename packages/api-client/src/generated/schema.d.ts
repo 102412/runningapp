@@ -1061,6 +1061,271 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/posts/{id}/reaction": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * React to a post (idempotent; sending another type changes your reaction)
+         * @description One reaction per user per post. Counts are always consistent: repeated or concurrent calls never double-count.
+         */
+        put: operations["reactToPost"];
+        post?: never;
+        /** Remove your reaction (idempotent) */
+        delete: operations["unreactToPost"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/posts/{id}/reactions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Who reacted (excludes people you have blocked or who blocked you) */
+        get: operations["listPostReactions"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/posts/{id}/bookmark": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Save a post (private to you) */
+        put: operations["bookmarkPost"];
+        post?: never;
+        /** Remove a saved post (idempotent) */
+        delete: operations["unbookmarkPost"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/me/bookmarks": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Your saved posts, most recently saved first (posts you can no longer see are omitted) */
+        get: operations["listBookmarks"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/posts/{id}/shares": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Record that you shared a post (copy link, system share sheet...)
+         * @description Sharing itself happens on the device; this records the event and updates the count.
+         */
+        post: operations["recordShare"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/posts/{id}/comments": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Top-level comments on a post (replies via /comments/{id}/replies)
+         * @description Comments by blocked users, deleted and moderated comments are never returned.
+         */
+        get: operations["listComments"];
+        put?: never;
+        /**
+         * Comment on a post, or reply to a comment
+         * @description Respects the post's comment permission (`COMMENTS_RESTRICTED`). Replying to a reply attaches to the thread root. Send an `Idempotency-Key` header to make retries safe.
+         */
+        post: operations["createComment"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/comments/{commentId}/replies": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Replies to a top-level comment, oldest first */
+        get: operations["listReplies"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/comments/{commentId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Delete a comment (and its replies). Allowed for the comment author and the post author. */
+        delete: operations["deleteComment"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/comments/{commentId}/reaction": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Like a comment (idempotent) */
+        put: operations["likeComment"];
+        post?: never;
+        /** Remove your like from a comment (idempotent) */
+        delete: operations["unlikeComment"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/notifications": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Your notifications, newest first
+         * @description Notifications about people you blocked, or posts/comments that were deleted, hidden or left your audience, are omitted. Each item carries enough (actor, post preview, comment excerpt) to render without extra requests.
+         */
+        get: operations["listNotifications"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/notifications/unread-count": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Badge count (capped at 100) */
+        get: operations["getUnreadNotificationCount"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/notifications/read": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Mark notifications read: specific ids, or `all: true` */
+        post: operations["markNotificationsRead"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/me/notification-preferences": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Which notification types you receive in-app and as push */
+        get: operations["getNotificationPreferences"];
+        /**
+         * Update preferences for the given types (others unchanged)
+         * @description Turning `inApp` off suppresses the notification entirely, including its push.
+         */
+        put: operations["updateNotificationPreferences"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/me/device/push-token": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Register this device's push token (APNs/FCM/Expo)
+         * @description Attaches the token to the device behind the current session. If you signed in without `device` info, also send `installId` and `platform`. Delivery requires a push provider to be configured server-side (see HANDOFF.md); until then registration works but nothing is sent.
+         */
+        put: operations["registerPushToken"];
+        post?: never;
+        /** Stop push notifications on this device */
+        delete: operations["removePushToken"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/storage/upload": {
         parameters: {
             query?: never;
@@ -1214,6 +1479,9 @@ export interface components {
             /** @description Pass as `cursor` to fetch the next page; null when there are no more items. */
             nextCursor: string | null;
         };
+        BookmarkState: {
+            bookmarked: boolean;
+        };
         BrandPartnership: {
             id: components["schemas"]["Id"];
             brandName: string;
@@ -1228,8 +1496,41 @@ export interface components {
             /** @description Pass as `cursor` to fetch the next page; null when there are no more items. */
             nextCursor: string | null;
         };
+        Comment: {
+            id: components["schemas"]["Id"];
+            postId: components["schemas"]["Id"];
+            author: components["schemas"]["UserSummary"];
+            body: string;
+            /** @description Set for replies; always a top-level comment (threads are two levels deep). */
+            parentId: components["schemas"]["Id"] | null;
+            /** @description Who a reply is addressed to (render as "@username"). */
+            replyTo: {
+                id: components["schemas"]["Id"];
+                username: string;
+            } | null;
+            counts: {
+                reactions: number;
+                replies: number;
+            };
+            viewer: {
+                reacted: boolean;
+                isAuthor: boolean;
+                /** @description Comment author or post author. */
+                canDelete: boolean;
+            } | null;
+            createdAt: components["schemas"]["IsoDateTime"];
+        };
+        CommentPage: {
+            items: components["schemas"]["Comment"][];
+            /** @description Pass as `cursor` to fetch the next page; null when there are no more items. */
+            nextCursor: string | null;
+        };
         /** @enum {string} */
         CommentPermission: "EVERYONE" | "FOLLOWERS" | "NOBODY";
+        CommentReactionState: {
+            reacted: boolean;
+            reactionCount: number;
+        };
         /** @enum {string} */
         ContentVisibility: "PUBLIC" | "FOLLOWERS" | "PRIVATE";
         CreatorBadge: {
@@ -1304,6 +1605,15 @@ export interface components {
                 details?: components["schemas"]["ErrorDetail"][];
             };
         };
+        EventContext: {
+            /** @description `requestId` from the feed response that surfaced the post. */
+            feedRequestId?: components["schemas"]["Id"];
+            surface?: components["schemas"]["FeedSurface"];
+            /** @description Zero-based position in the feed. */
+            position?: number;
+        };
+        /** @enum {string} */
+        FeedSurface: "HOME" | "FOLLOWING" | "EXPLORE" | "PROFILE" | "SEARCH" | "POST_DETAIL" | "TOPIC" | "OTHER";
         FollowRequestPage: {
             items: {
                 id: components["schemas"]["Id"];
@@ -1385,6 +1695,9 @@ export interface components {
             /** @description The auto-generated feed post for this activity. Null when none was created (createPost=false, PRIVATE activity, or unverified email). */
             postId: components["schemas"]["Id"] | null;
         };
+        MarkReadResult: {
+            updated: number;
+        };
         Me: {
             id: components["schemas"]["Id"];
             email: string;
@@ -1459,6 +1772,54 @@ export interface components {
         MyCreator: {
             creator: components["schemas"]["CreatorProfile"] | null;
         };
+        Notification: {
+            id: components["schemas"]["Id"];
+            type: components["schemas"]["NotificationType"];
+            /** @description Who did it. Null for system notifications. */
+            actor: components["schemas"]["UserSummary"] | null;
+            post: components["schemas"]["NotificationPostPreview"] | null;
+            comment: {
+                id: components["schemas"]["Id"];
+                excerpt: string;
+            } | null;
+            /** @description For FOLLOW_REQUEST while still pending: use it to accept/reject inline. */
+            followRequestId: components["schemas"]["Id"] | null;
+            /** @description Type-specific extras (e.g. `reaction`, `mediaId`, `reason`). */
+            data: {
+                [key: string]: string | number | boolean | null;
+            };
+            readAt: components["schemas"]["IsoDateTime"] | null;
+            createdAt: components["schemas"]["IsoDateTime"];
+        };
+        NotificationPage: {
+            items: components["schemas"]["Notification"][];
+            /** @description Pass as `cursor` to fetch the next page; null when there are no more items. */
+            nextCursor: string | null;
+        };
+        NotificationPostPreview: {
+            id: components["schemas"]["Id"];
+            format: components["schemas"]["PostFormat"];
+            /** @description Signed thumbnail of the first media item, when the post has any. */
+            thumbnailUrl: string | null;
+            /** @description First ~100 characters of the caption. */
+            captionExcerpt: string;
+        };
+        NotificationPreference: {
+            type: components["schemas"]["NotificationType"];
+            inApp: boolean;
+            push: boolean;
+        };
+        NotificationPreferenceInput: {
+            type: components["schemas"]["NotificationType"];
+            inApp: boolean;
+            push: boolean;
+        };
+        /** @description One entry per notification type. Defaults: everything on. */
+        NotificationPreferences: {
+            items: components["schemas"]["NotificationPreference"][];
+        };
+        /** @enum {string} */
+        NotificationType: "NEW_FOLLOWER" | "FOLLOW_REQUEST" | "FOLLOW_ACCEPTED" | "POST_REACTION" | "POST_COMMENT" | "COMMENT_REPLY" | "COMMENT_REACTION" | "MENTION_POST" | "MENTION_COMMENT" | "POST_PUBLISHED" | "POST_PUBLISH_FAILED" | "MODERATION_ACTION";
         Post: {
             id: components["schemas"]["Id"];
             author: components["schemas"]["UserSummary"];
@@ -1551,6 +1912,24 @@ export interface components {
             createdAt: components["schemas"]["IsoDateTime"];
         };
         /** @enum {string} */
+        PushProviderName: "APNS" | "FCM" | "EXPO";
+        ReactionItem: {
+            user: components["schemas"]["UserSummary"];
+            reaction: components["schemas"]["ReactionType"];
+            createdAt: components["schemas"]["IsoDateTime"];
+        };
+        ReactionPage: {
+            items: components["schemas"]["ReactionItem"][];
+            /** @description Pass as `cursor` to fetch the next page; null when there are no more items. */
+            nextCursor: string | null;
+        };
+        ReactionState: {
+            /** @description Your reaction after this call (null after removing it). */
+            reaction: components["schemas"]["ReactionType"] | null;
+            /** @description The post's up-to-date total. */
+            reactionCount: number;
+        };
+        /** @enum {string} */
         ReactionType: "LIKE" | "CLAP" | "FIRE" | "STRONG";
         /** @enum {string} */
         RecordType: "LONGEST_DISTANCE" | "LONGEST_DURATION" | "FASTEST_5K" | "FASTEST_10K" | "FASTEST_HALF_MARATHON" | "FASTEST_MARATHON" | "BIGGEST_CLIMB";
@@ -1607,6 +1986,11 @@ export interface components {
             autoCreateActivityPost: boolean;
             /** @description When false, behaviour is not used to personalise the feed. */
             personalizationEnabled: boolean;
+        };
+        /** @enum {string} */
+        ShareChannel: "COPY_LINK" | "SYSTEM_SHARE" | "EXTERNAL_APP";
+        ShareResult: {
+            shareCount: number;
         };
         /** @enum {string} */
         SpeedDisplay: "PACE_PER_DISTANCE" | "SPEED" | "PACE_PER_100M" | "PACE_PER_500M" | "NONE";
@@ -1688,6 +2072,10 @@ export interface components {
         };
         /** @enum {string} */
         UnitSystem: "METRIC" | "IMPERIAL";
+        UnreadCount: {
+            /** @description Capped at 100: show "99+" when it is 100. */
+            count: number;
+        };
         UploadInitResponse: {
             media: components["schemas"]["Media"];
             upload: components["schemas"]["UploadInstructions"];
@@ -5264,6 +5652,1010 @@ export interface operations {
             path: {
                 id: components["schemas"]["Id"];
             };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No content. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Default Response */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    reactToPost: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: components["schemas"]["Id"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    type?: components["schemas"]["ReactionType"];
+                    context?: components["schemas"]["EventContext"];
+                };
+            };
+        };
+        responses: {
+            /** @description Default Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReactionState"];
+                };
+            };
+            /** @description Default Response */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Default Response */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Default Response */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Default Response */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    unreactToPost: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: components["schemas"]["Id"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Default Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReactionState"];
+                };
+            };
+            /** @description Default Response */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Default Response */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    listPostReactions: {
+        parameters: {
+            query?: {
+                /** @description Page size, 1..50. */
+                limit?: number;
+                /** @description Opaque cursor from the previous page's `nextCursor`. Never construct one yourself. */
+                cursor?: string;
+            };
+            header?: never;
+            path: {
+                id: components["schemas"]["Id"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Default Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReactionPage"];
+                };
+            };
+            /** @description Default Response */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Default Response */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Default Response */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    bookmarkPost: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: components["schemas"]["Id"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Default Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BookmarkState"];
+                };
+            };
+            /** @description Default Response */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Default Response */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Default Response */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    unbookmarkPost: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: components["schemas"]["Id"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Default Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BookmarkState"];
+                };
+            };
+            /** @description Default Response */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Default Response */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    listBookmarks: {
+        parameters: {
+            query?: {
+                /** @description Page size, 1..50. */
+                limit?: number;
+                /** @description Opaque cursor from the previous page's `nextCursor`. Never construct one yourself. */
+                cursor?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Default Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PostPage"];
+                };
+            };
+            /** @description Default Response */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Default Response */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    recordShare: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: components["schemas"]["Id"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    channel: components["schemas"]["ShareChannel"];
+                    context?: components["schemas"]["EventContext"];
+                };
+            };
+        };
+        responses: {
+            /** @description Default Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ShareResult"];
+                };
+            };
+            /** @description Default Response */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Default Response */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Default Response */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Default Response */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    listComments: {
+        parameters: {
+            query?: {
+                /** @description Page size, 1..50. */
+                limit?: number;
+                /** @description Opaque cursor from the previous page's `nextCursor`. Never construct one yourself. */
+                cursor?: string;
+                order?: "NEWEST" | "OLDEST";
+            };
+            header?: never;
+            path: {
+                id: components["schemas"]["Id"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Default Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CommentPage"];
+                };
+            };
+            /** @description Default Response */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Default Response */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Default Response */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Default Response */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    createComment: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: components["schemas"]["Id"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    body: string;
+                    parentId?: components["schemas"]["Id"];
+                    context?: components["schemas"]["EventContext"];
+                };
+            };
+        };
+        responses: {
+            /** @description Default Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Comment"];
+                };
+            };
+            /** @description Default Response */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Default Response */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Default Response */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Default Response */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Default Response */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Default Response */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    listReplies: {
+        parameters: {
+            query?: {
+                /** @description Page size, 1..50. */
+                limit?: number;
+                /** @description Opaque cursor from the previous page's `nextCursor`. Never construct one yourself. */
+                cursor?: string;
+            };
+            header?: never;
+            path: {
+                commentId: components["schemas"]["Id"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Default Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CommentPage"];
+                };
+            };
+            /** @description Default Response */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Default Response */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Default Response */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Default Response */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    deleteComment: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                commentId: components["schemas"]["Id"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No content. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Default Response */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Default Response */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Default Response */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    likeComment: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                commentId: components["schemas"]["Id"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Default Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CommentReactionState"];
+                };
+            };
+            /** @description Default Response */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Default Response */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Default Response */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    unlikeComment: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                commentId: components["schemas"]["Id"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Default Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CommentReactionState"];
+                };
+            };
+            /** @description Default Response */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Default Response */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    listNotifications: {
+        parameters: {
+            query?: {
+                /** @description Page size, 1..50. */
+                limit?: number;
+                /** @description Opaque cursor from the previous page's `nextCursor`. Never construct one yourself. */
+                cursor?: string;
+                unreadOnly?: "true" | "false";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Default Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NotificationPage"];
+                };
+            };
+            /** @description Default Response */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Default Response */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Default Response */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    getUnreadNotificationCount: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Default Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UnreadCount"];
+                };
+            };
+            /** @description Default Response */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    markNotificationsRead: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    ids?: components["schemas"]["Id"][];
+                    all?: boolean;
+                };
+            };
+        };
+        responses: {
+            /** @description Default Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MarkReadResult"];
+                };
+            };
+            /** @description Default Response */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Default Response */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Default Response */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    getNotificationPreferences: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Default Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NotificationPreferences"];
+                };
+            };
+            /** @description Default Response */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    updateNotificationPreferences: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    items: components["schemas"]["NotificationPreferenceInput"][];
+                };
+            };
+        };
+        responses: {
+            /** @description Default Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NotificationPreferences"];
+                };
+            };
+            /** @description Default Response */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Default Response */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Default Response */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    registerPushToken: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    provider: components["schemas"]["PushProviderName"];
+                    token: string;
+                    /** @description Required only if you signed in without `device` info. */
+                    installId?: string;
+                    /** @enum {string} */
+                    platform?: "IOS" | "ANDROID" | "WEB";
+                };
+            };
+        };
+        responses: {
+            /** @description No content. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Default Response */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Default Response */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Default Response */
+            429: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    removePushToken: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
             cookie?: never;
         };
         requestBody?: never;
