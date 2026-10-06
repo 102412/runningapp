@@ -45,6 +45,7 @@
     "zod": "^4.6.5"
   },
   "devDependencies": {
+    "@runningapp/api-client": "workspace:*",
     "@types/node": "^22.0.0",
     "@types/nodemailer": "^7.0.0",
     "@types/pg": "^8.23.1",

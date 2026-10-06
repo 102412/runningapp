@@ -17,11 +17,12 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "typecheck": "pnpm -r --workspace-concurrency=1 typecheck",
-    "test": "pnpm --filter @runningapp/api test && pnpm --filter @runningapp/contracts test",
+    "test": "pnpm -r --workspace-concurrency=1 test",
     "db:migrate": "pnpm --filter @runningapp/api db:migrate",
     "db:seed": "pnpm --filter @runningapp/api db:seed",
     "db:reset": "pnpm --filter @runningapp/api db:reset",
     "db:codegen": "pnpm --filter @runningapp/api db:codegen",
+    "admin:grant": "pnpm --filter @runningapp/api admin:grant",
     "openapi": "pnpm --filter @runningapp/api openapi:generate && pnpm --filter @runningapp/api-client generate",
     "check": "pnpm format:check && pnpm lint && pnpm typecheck && pnpm test && pnpm build"
   },
