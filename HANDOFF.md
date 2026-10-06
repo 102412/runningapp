@@ -12,7 +12,7 @@ related but independent.
 `pnpm format:check`, `pnpm lint`, `pnpm deadcode` (knip), `pnpm typecheck`, `pnpm test` (**431 API tests and
 25 client tests, all passing**), `pnpm build`, `pnpm openapi` (no diff), `pnpm audit --prod` (no known
 vulnerabilities at the time), the seed end to end, and the production bundle started from a simulated
-container layout. **Not verified here:** the Docker image build (no Docker daemon — CI builds it), anything
+container layout. **Not verified locally:** the Docker image build (no Docker daemon here — the CI `docker` job builds and smoke-tests it), anything
 against a real S3/R2, SMTP server, push provider or third-party OAuth/sync provider, and any
 load/performance testing.
 
@@ -89,8 +89,10 @@ pnpm openapi && git diff --exit-code   # contract + generated client up to date
   and headers (`hardening`), contract ⇄ DB enum parity (`enum-parity`).
 - `client.e2e.test.ts` boots the real server and drives it through `@runningapp/api-client`.
 - CI (`.github/workflows/ci.yml`): verify (format, lint, dead code, typecheck, migrate, codegen diff, OpenAPI diff,
-  tests, build, seed smoke) · docker image build · dependency audit. **CI has not run on GitHub yet** — the first push will
-  be its first run; expect to fix small environment differences.
+  tests, build, seed smoke) · docker image build (+ ffmpeg present, migrations apply, `/readyz` ok) · dependency audit.
+  It runs on every push to this branch (GitHub Actions). The `docker` and `audit` jobs pass; the `verify` job passed
+  through typecheck/dead-code/migrations/codegen/OpenAPI drift on the documentation commit — see the Actions tab for the
+  latest run, and fix forward if a GitHub-runner difference shows up.
 
 ## Important architectural decisions
 
@@ -188,7 +190,7 @@ Honest list; none of these is hidden in the code.
 
 - Rate limiting is in-memory unless `REDIS_URL` is set (and fails open). No WebSocket/SSE.
 - No tracing/OpenTelemetry, alert rules, dashboards, load tests, or backup/PITR/disaster-recovery plan.
-- The Docker image has only ever been verified by simulating its layout; CI is its first real build. CI itself has not run yet.
+- The Docker image is built and smoke-tested (ffmpeg present, migrations apply, API ready) by CI only; it was never built in the authoring environment (no Docker daemon). It has not been deployed anywhere.
 - Zero-downtime migration discipline is documented but the runner wraps every migration in a transaction (no `CONCURRENTLY` yet).
 - Some `0006_sports.sql` wording ("no deploy") is misleading — adding a sport also needs a `SPORT_KEYS` entry ([`DATABASE.md`](docs/DATABASE.md#sports-are-data-but-typed)); applied migrations cannot be edited.
 
