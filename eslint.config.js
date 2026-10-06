@@ -52,6 +52,19 @@ export default defineConfig(
     rules: { 'no-console': 'off' },
   },
   {
+    // Test files read dynamic JSON response bodies (`res.json()` is `any` in light-my-request).
+    // Only the unsafe-any family is relaxed here, and only for tests; production code keeps the
+    // strict rules, and `no-explicit-any` still applies everywhere.
+    files: ['apps/api/test/**/*.ts', 'packages/*/test/**/*.ts'],
+    rules: {
+      '@typescript-eslint/no-unsafe-member-access': 'off',
+      '@typescript-eslint/no-unsafe-assignment': 'off',
+      '@typescript-eslint/no-unsafe-argument': 'off',
+      '@typescript-eslint/no-unsafe-call': 'off',
+      '@typescript-eslint/no-unsafe-return': 'off',
+    },
+  },
+  {
     files: ['**/*.js', '**/*.mjs'],
     extends: [tseslint.configs.disableTypeChecked],
   },

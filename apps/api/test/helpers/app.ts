@@ -1,5 +1,6 @@
 import { randomBytes } from 'node:crypto';
 import type { FastifyInstance } from 'fastify';
+import type { LogEvent } from 'kysely';
 import pg from 'pg';
 import { buildApp } from '../../src/app';
 import { loadConfig, type Config } from '../../src/config';
@@ -21,11 +22,8 @@ export interface TestApp {
 export interface TestAppOptions {
   env?: Record<string, string>;
   clock?: ManualClock;
-  onQuery?: Parameters<typeof createPlatform>[1] extends infer O
-    ? O extends { onQuery?: infer Q }
-      ? Q
-      : never
-    : never;
+  /** Called for every SQL statement executed (used to assert query counts / N+1). */
+  onQuery?: (event: LogEvent) => void;
 }
 
 /** Creates an isolated database from the template and a fully wired app against it. */

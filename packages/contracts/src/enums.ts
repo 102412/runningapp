@@ -31,12 +31,7 @@ export const CommentPermission = defineEnum('CommentPermission', [
 ]);
 export type CommentPermission = z.infer<typeof CommentPermission.schema>;
 
-export const UserStatus = defineEnum('UserStatus', [
-  'ACTIVE',
-  'SUSPENDED',
-  'PENDING_DELETION',
-  'DELETED',
-]);
+export const UserStatus = defineEnum('UserStatus', ['ACTIVE', 'SUSPENDED', 'PENDING_DELETION']);
 export type UserStatus = z.infer<typeof UserStatus.schema>;
 
 export const UserRole = defineEnum('UserRole', ['USER', 'MODERATOR', 'ADMIN']);
@@ -86,6 +81,7 @@ export const SpeedDisplay = defineEnum('SpeedDisplay', [
   'PACE_PER_DISTANCE',
   'SPEED',
   'PACE_PER_100M',
+  'PACE_PER_500M',
   'NONE',
 ]);
 export type SpeedDisplay = z.infer<typeof SpeedDisplay.schema>;

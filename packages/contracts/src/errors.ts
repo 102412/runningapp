@@ -29,6 +29,7 @@ export const ERROR_CATALOG = {
   ACCOUNT_SUSPENDED: { status: 403, message: 'This account is suspended.' },
   ACCOUNT_PENDING_DELETION: { status: 403, message: 'This account is scheduled for deletion.' },
   EMAIL_NOT_VERIFIED: { status: 403, message: 'Verify your email address to do that.' },
+  ACCOUNT_PRIVATE: { status: 403, message: 'This account is private.' },
   COMMENTS_RESTRICTED: { status: 403, message: 'Comments are restricted on this post.' },
   PUBLIC_ACCOUNT_NOT_ALLOWED: {
     status: 403,

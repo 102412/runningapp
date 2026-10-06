@@ -5,6 +5,16 @@
 
 import type { ColumnType } from "kysely";
 
+export type AccountVisibility = "PRIVATE" | "PUBLIC";
+
+export type AuthTokenPurpose = "EMAIL_VERIFICATION" | "PASSWORD_RESET";
+
+export type CommentPermission = "EVERYONE" | "FOLLOWERS" | "NOBODY";
+
+export type ContentVisibility = "FOLLOWERS" | "PRIVATE" | "PUBLIC";
+
+export type DevicePlatform = "ANDROID" | "IOS" | "WEB";
+
 export type Generated<T> = T extends ColumnType<infer S, infer I, infer U>
   ? ColumnType<S, I | undefined, U>
   : ColumnType<T, T | undefined, T>;
@@ -23,7 +33,58 @@ export type JsonPrimitive = boolean | number | string | null;
 
 export type JsonValue = JsonArray | JsonObject | JsonPrimitive;
 
+export type NotificationType = "COMMENT_REACTION" | "COMMENT_REPLY" | "FOLLOW_ACCEPTED" | "FOLLOW_REQUEST" | "MENTION_COMMENT" | "MENTION_POST" | "MODERATION_ACTION" | "NEW_FOLLOWER" | "POST_COMMENT" | "POST_PUBLISH_FAILED" | "POST_PUBLISHED" | "POST_REACTION";
+
+export type OauthProvider = "APPLE" | "GOOGLE";
+
+export type PushProvider = "APNS" | "EXPO" | "FCM";
+
+export type RoutePrivacy = "APPROXIMATE" | "FULL" | "HIDDEN" | "TRIMMED";
+
+export type SpeedDisplay = "NONE" | "PACE_PER_100M" | "PACE_PER_500M" | "PACE_PER_DISTANCE" | "SPEED";
+
+export type SportCategory = "ENDURANCE" | "GENERAL" | "STRENGTH";
+
+export type SportRelation = "FOLLOWER" | "PARTICIPANT";
+
 export type Timestamp = ColumnType<Date, Date | string, Date | string>;
+
+export type UnitSystem = "IMPERIAL" | "METRIC";
+
+export type UserRole = "ADMIN" | "MODERATOR" | "USER";
+
+export type UserStatus = "ACTIVE" | "PENDING_DELETION" | "SUSPENDED";
+
+export interface AuthTokens {
+  consumedAt: Timestamp | null;
+  createdAt: Generated<Timestamp>;
+  expiresAt: Timestamp;
+  id: Generated<string>;
+  purpose: AuthTokenPurpose;
+  tokenHash: string;
+  userId: string;
+}
+
+export interface Blocks {
+  blockedId: string;
+  blockerId: string;
+  createdAt: Generated<Timestamp>;
+}
+
+export interface Devices {
+  appVersion: string | null;
+  createdAt: Generated<Timestamp>;
+  id: Generated<string>;
+  installId: string;
+  lastSeenAt: Generated<Timestamp>;
+  name: string | null;
+  platform: DevicePlatform;
+  pushProvider: PushProvider | null;
+  pushToken: string | null;
+  pushTokenUpdatedAt: Timestamp | null;
+  updatedAt: Generated<Timestamp>;
+  userId: string;
+}
 
 export interface DevMailOutbox {
   createdAt: Generated<Timestamp>;
@@ -33,6 +94,19 @@ export interface DevMailOutbox {
   textBody: string;
   toEmail: string;
   token: string | null;
+}
+
+export interface FollowRequests {
+  createdAt: Generated<Timestamp>;
+  id: Generated<string>;
+  requesterId: string;
+  targetId: string;
+}
+
+export interface Follows {
+  createdAt: Generated<Timestamp>;
+  followeeId: string;
+  followerId: string;
 }
 
 export interface IdempotencyKeys {
@@ -64,8 +138,156 @@ export interface Jobs {
   updatedAt: Generated<Timestamp>;
 }
 
+export interface LoginThrottles {
+  email: string;
+  failureCount: Generated<number>;
+  lockedUntil: Timestamp | null;
+  updatedAt: Generated<Timestamp>;
+}
+
+export interface NotificationPreferences {
+  inApp: Generated<boolean>;
+  push: Generated<boolean>;
+  type: NotificationType;
+  updatedAt: Generated<Timestamp>;
+  userId: string;
+}
+
+export interface Notifications {
+  actorId: string | null;
+  commentId: string | null;
+  createdAt: Generated<Timestamp>;
+  data: Generated<Json>;
+  dedupeKey: string | null;
+  id: Generated<string>;
+  postId: string | null;
+  readAt: Timestamp | null;
+  recipientId: string;
+  type: NotificationType;
+}
+
+export interface OauthIdentities {
+  createdAt: Generated<Timestamp>;
+  email: string | null;
+  id: Generated<string>;
+  provider: OauthProvider;
+  subject: string;
+  userId: string;
+}
+
+export interface Profiles {
+  accountVisibility: Generated<AccountVisibility>;
+  avatarMediaId: string | null;
+  bio: Generated<string>;
+  createdAt: Generated<Timestamp>;
+  discoverable: Generated<boolean>;
+  displayName: string;
+  followerCount: Generated<number>;
+  followingCount: Generated<number>;
+  locationLabel: string | null;
+  postCount: Generated<number>;
+  primarySportKey: string | null;
+  updatedAt: Generated<Timestamp>;
+  userId: string;
+  username: string;
+  usernameChangedAt: Timestamp | null;
+}
+
+export interface RefreshTokens {
+  createdAt: Generated<Timestamp>;
+  expiresAt: Timestamp;
+  id: Generated<string>;
+  replacedBy: string | null;
+  sessionId: string;
+  tokenHash: string;
+  usedAt: Timestamp | null;
+}
+
+export interface Sessions {
+  createdAt: Generated<Timestamp>;
+  deviceId: string | null;
+  expiresAt: Timestamp;
+  id: Generated<string>;
+  ipPrefix: string | null;
+  lastSeenAt: Generated<Timestamp>;
+  revokedAt: Timestamp | null;
+  revokedReason: string | null;
+  userAgent: string | null;
+  userId: string;
+}
+
+export interface SportPreferences {
+  createdAt: Generated<Timestamp>;
+  relation: SportRelation;
+  sportKey: string;
+  userId: string;
+}
+
+export interface Sports {
+  category: SportCategory;
+  createdAt: Generated<Timestamp>;
+  key: string;
+  label: string;
+  sortOrder: number;
+  speedDisplay: SpeedDisplay;
+  supportsCadence: boolean;
+  supportsDistance: boolean;
+  supportsElevation: boolean;
+  supportsHeartRate: boolean;
+  supportsPower: boolean;
+  supportsRoute: boolean;
+  supportsSplits: boolean;
+}
+
+export interface Users {
+  birthDate: string;
+  createdAt: Generated<Timestamp>;
+  deletionRequestedAt: Timestamp | null;
+  deletionScheduledFor: Timestamp | null;
+  email: string;
+  emailVerifiedAt: Timestamp | null;
+  id: Generated<string>;
+  lastLoginAt: Timestamp | null;
+  passwordChangedAt: Timestamp | null;
+  passwordHash: string | null;
+  role: Generated<UserRole>;
+  status: Generated<UserStatus>;
+  suspendedAt: Timestamp | null;
+  updatedAt: Generated<Timestamp>;
+}
+
+export interface UserSettings {
+  autoCreateActivityPost: Generated<boolean>;
+  createdAt: Generated<Timestamp>;
+  defaultActivityVisibility: Generated<ContentVisibility>;
+  defaultCommentPermission: Generated<CommentPermission>;
+  defaultPostVisibility: Generated<ContentVisibility>;
+  defaultRoutePrivacy: Generated<RoutePrivacy>;
+  personalizationEnabled: Generated<boolean>;
+  routeTrimMeters: Generated<number>;
+  unitSystem: Generated<UnitSystem>;
+  updatedAt: Generated<Timestamp>;
+  userId: string;
+}
+
 export interface DB {
+  authTokens: AuthTokens;
+  blocks: Blocks;
+  devices: Devices;
   devMailOutbox: DevMailOutbox;
+  followRequests: FollowRequests;
+  follows: Follows;
   idempotencyKeys: IdempotencyKeys;
   jobs: Jobs;
+  loginThrottles: LoginThrottles;
+  notificationPreferences: NotificationPreferences;
+  notifications: Notifications;
+  oauthIdentities: OauthIdentities;
+  profiles: Profiles;
+  refreshTokens: RefreshTokens;
+  sessions: Sessions;
+  sportPreferences: SportPreferences;
+  sports: Sports;
+  users: Users;
+  userSettings: UserSettings;
 }

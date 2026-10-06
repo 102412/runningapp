@@ -15,9 +15,11 @@ import { API_BASE_PATH, API_VERSION } from '@runningapp/contracts';
 import { migrationsUpToDate } from './platform/db/migrate';
 import { AppError } from './platform/errors';
 import { installErrorHandling } from './platform/http/error-handler';
+import { tidyOpenApi } from './platform/http/openapi';
 import type { PlatformContext } from './platform/context';
 import { safeEqual } from './platform/crypto/tokens';
 import { uuidv7 } from './platform/ids';
+import { authPlugin } from './modules/auth/plugin';
 import { registerModules } from './routes';
 import type { Services } from './services';
 
@@ -92,6 +94,8 @@ export async function buildApp(
     }
     await app.register(rateLimit, {
       global: true,
+      // preHandler so per-user limits can key on the authenticated principal (auth runs in onRequest).
+      hook: 'preHandler',
       max: config.RATE_LIMIT_GLOBAL_PER_MINUTE,
       timeWindow: '1 minute',
       redis,
@@ -203,11 +207,14 @@ export async function buildApp(
   });
 
   // ---- versioned API --------------------------------------------------------------------
+  await app.register(authPlugin(platform, services.accessTokens));
   await app.register(
     async (v1) => {
       if (options.withOpenApi !== false) {
         v1.get('/openapi.json', { schema: { hide: true } }, async (_request, reply) => {
-          return reply.header('cache-control', 'public, max-age=60').send(app.swagger());
+          return reply
+            .header('cache-control', 'public, max-age=60')
+            .send(tidyOpenApi(app.swagger()));
         });
       }
       await registerModules(v1, services);

@@ -22,6 +22,9 @@ const result = spawnSync(
     'public.schema_migrations',
     '--numeric-parser',
     'number-or-string',
+    // pg returns `date` columns as 'YYYY-MM-DD' strings (see platform/db/client.ts).
+    '--type-mapping',
+    JSON.stringify({ date: 'string' }),
   ],
   { cwd: root, stdio: 'inherit' },
 );

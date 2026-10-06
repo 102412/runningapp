@@ -1,19 +1,21 @@
-import { ErrorResponseSchema, type ErrorCode } from '@runningapp/contracts';
-import { ERROR_CATALOG } from '@runningapp/contracts';
-import type { ZodType } from 'zod';
+import { z } from 'zod';
+import { ErrorResponseSchema } from '@runningapp/contracts';
 
 /**
- * OpenAPI `response` entries for the common error statuses, so every route documents them
- * with the same schema. Usage: `response: { 200: X, ...errorResponses(401, 404) }`.
+ * OpenAPI `response` entries for error statuses, with literal keys so the handler's typed
+ * reply body for the 2xx status is preserved:
+ *   response: { 200: ThingSchema, ...errors(401, 404) }
  */
-export function errorResponses(...statuses: number[]): Record<number, ZodType> {
-  const out: Record<number, ZodType> = {};
+export function errors<const S extends readonly number[]>(
+  ...statuses: S
+): { [K in S[number]]: typeof ErrorResponseSchema } {
+  const out: Record<number, typeof ErrorResponseSchema> = {};
   for (const s of statuses) out[s] = ErrorResponseSchema;
   return out;
 }
 
-export const BEARER_SECURITY = [{ bearerAuth: [] }] as const;
+/** Marks a route as requiring `Authorization: Bearer <accessToken>` in the OpenAPI document. */
+export const BEARER_SECURITY = [{ bearerAuth: [] }];
 
-export function describeErrorCodes(codes: readonly ErrorCode[]): string {
-  return codes.map((c) => `\`${c}\` (${ERROR_CATALOG[c].status})`).join(', ');
-}
+/** Response schema for 204/202 style empty bodies. */
+export const NoContent = z.undefined().describe('No content.');
